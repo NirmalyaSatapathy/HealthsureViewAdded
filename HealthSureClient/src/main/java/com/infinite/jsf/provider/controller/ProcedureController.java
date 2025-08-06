@@ -74,6 +74,10 @@ public class ProcedureController {
 	private List<PrescribedMedicines> currentPrescribedMedicines = new ArrayList<PrescribedMedicines>();
 	private List<ProcedureTest> currentPrescribedTests = new ArrayList<ProcedureTest>();
 	// Pagination variables
+	private int currentMedFirst=0;
+	private int currentTestFirst=0;
+	private int currentMedSize=3;
+	private int currentTestSize=3;
 	private int prescriptionFirst = 0;
 	private int prescriptionPageSize = 3; // Default page size
 	// Pagination variables
@@ -103,6 +107,43 @@ public class ProcedureController {
 
 	public String getAction() {
 		return action;
+	}
+
+	public int getCurrentMedFirst() {
+		return currentMedFirst;
+	}
+
+	public void setCurrentMedFirst(int currentMedFirst) {
+		this.currentMedFirst = currentMedFirst;
+	}
+
+	public int getCurrentTestFirst() {
+		return currentTestFirst;
+	}
+
+	public void setCurrentTestFirst(int currentTestFirst) {
+		this.currentTestFirst = currentTestFirst;
+	}
+
+	public int getCurrentMedSize() {
+		return currentMedSize;
+	}
+
+	public void setCurrentMedSize(int currentMedSize) {
+		this.currentMedSize = currentMedSize;
+	}
+
+	public int getCurrentTestSize() {
+		return currentTestSize;
+	}
+	public int getCurrentMedicineCurrentPage() {
+		return (currentMedFirst / currentMedSize) + 1;
+	}
+	public int getCurrentTestCurrentPage() {
+		return (currentTestFirst / currentTestSize) + 1;
+	}
+	public void setCurrentTestSize(int curentTestSize) {
+		this.currentTestSize = curentTestSize;
 	}
 
 	public boolean isFirstLongterm() {
@@ -187,13 +228,69 @@ public class ProcedureController {
 		int toIndex = Math.min(medicineFirst + medicinePageSize, viewMedicines.size());
 		return viewMedicines.subList(medicineFirst, toIndex);
 	}
-
+	public List<PrescribedMedicines> getPaginatedCurrentMedicines() {
+		if (currentPrescribedMedicines == null || currentPrescribedMedicines.isEmpty()) {
+			return Collections.emptyList();
+		}
+		int toIndex = Math.min(currentMedFirst + currentMedSize, currentPrescribedMedicines.size());
+		return currentPrescribedMedicines.subList(currentMedFirst, toIndex);
+	}
+	public List<ProcedureTest> getPaginatedCurrentTests() {
+		if (currentPrescribedTests == null || currentPrescribedTests.isEmpty()) {
+			return Collections.emptyList();
+		}
+		int toIndex = Math.min(currentTestFirst + currentTestSize, currentPrescribedTests.size());
+		return currentPrescribedTests.subList(currentTestFirst, toIndex);
+	}
+	public void nextCurrentMedicinePage() {
+		if (currentMedFirst + currentMedSize < currentPrescribedMedicines.size()) {
+			currentMedFirst += currentMedSize;
+		}
+	}
+	public void nextCurrentTestPage() {
+		if (currentTestFirst + currentTestSize < currentPrescribedTests.size()) {
+			currentTestFirst += currentTestSize;
+		}
+	}
+	
 	public void nextMedicinePage() {
 		if (medicineFirst + medicinePageSize < viewMedicines.size()) {
 			medicineFirst += medicinePageSize;
 		}
 	}
-
+	public void previousMedicinePage() {
+		if (medicineFirst - medicinePageSize >= 0) {
+			medicineFirst -= medicinePageSize;
+		}
+	}
+	public void previousCurrentMedicinePage() {
+		if (currentMedFirst - currentMedSize >= 0) {
+			currentMedFirst -= currentMedFirst;
+		}
+	}
+	public void previousCurrentTestPage() {
+		if (currentTestFirst - currentTestSize >= 0) {
+			currentTestFirst -= currentTestFirst;
+		}
+	}
+	public boolean isCurrentMedicineHasNextPage() {
+		return currentMedFirst + currentMedSize < (currentPrescribedMedicines != null ? currentPrescribedMedicines.size() : 0);
+	}
+	public boolean isCurrentTestHasNextPage() {
+		return currentTestFirst + currentTestSize < (currentPrescribedTests != null ? currentPrescribedTests.size() : 0);
+	}
+	public int getCurrentMedicineTotalPages() {
+		if (currentPrescribedMedicines == null || currentPrescribedMedicines.isEmpty()) {
+			return 0;
+		}
+		return (int) Math.ceil((double) currentPrescribedMedicines.size() / currentMedSize);
+	}
+	public int getCurrentTestTotalPages() {
+		if (currentPrescribedTests == null || currentPrescribedTests.isEmpty()) {
+			return 0;
+		}
+		return (int) Math.ceil((double) currentPrescribedTests.size() / currentTestSize);
+	}
 	// Pagination methods
 	public List<ProcedureDailyLog> getPaginatedLogs() {
 		if (viewLogs == null || viewLogs.isEmpty()) {
@@ -230,11 +327,6 @@ public class ProcedureController {
 		return (logFirst / logPageSize) + 1;
 	}
 
-	public void previousMedicinePage() {
-		if (medicineFirst - medicinePageSize >= 0) {
-			medicineFirst -= medicinePageSize;
-		}
-	}
 
 	public boolean isMedicineHasNextPage() {
 		return medicineFirst + medicinePageSize < (viewMedicines != null ? viewMedicines.size() : 0);
@@ -271,7 +363,7 @@ public class ProcedureController {
 	}
 
 	public boolean isTestHasNextPage() {
-		return testFirst + testPageSize < (viewTests != null ? viewTests.size() : 0);
+		return currentTestFirst + currentTestSize < (currentPrescribedTests != null ? currentPrescribedTests.size() : 0);
 	}
 
 	public int getTestTotalPages() {
@@ -388,6 +480,14 @@ public class ProcedureController {
 			logFirst = 0;
 			sortLogList();
 		}
+		if ("currentMedicines".equals(listType)) {
+			currentMedFirst = 0;
+			sortCurrentMedList();
+		}
+		if ("currentTests".equals(listType)) {
+			currentTestFirst = 0;
+			sortCurrentTestList();
+		}
 	}
 
 	private void sortLogList() {
@@ -473,6 +573,32 @@ public class ProcedureController {
 			}
 		});
 	}
+	private void sortCurrentTestList() {
+		if (currentPrescribedTests == null || sortField == null)
+			return;
+
+		Collections.sort(currentPrescribedTests, (t1, t2) -> {
+			try {
+				Field f = t1.getClass().getDeclaredField(sortField);
+				f.setAccessible(true);
+				Object v1 = f.get(t1);
+				Object v2 = f.get(t2);
+
+				if (v1 == null || v2 == null)
+					return 0;
+
+				if (v1 instanceof Date && v2 instanceof Date) {
+					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
+				} else if (v1 instanceof Comparable && v2 instanceof Comparable) {
+					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
+				} else {
+					return 0;
+				}
+			} catch (Exception e) {
+				return 0;
+			}
+		});
+	}
 
 	private void sortMedicineList() {
 		if (viewMedicines == null || sortField == null)
@@ -506,6 +632,39 @@ public class ProcedureController {
 			}
 		});
 	}
+	private void sortCurrentMedList() {
+		if (currentPrescribedMedicines == null || sortField == null)
+			return;
+
+		Collections.sort(currentPrescribedMedicines, (m1, m2) -> {
+			try {
+				Field f = m1.getClass().getDeclaredField(sortField);
+				f.setAccessible(true);
+				Object v1 = f.get(m1);
+				Object v2 = f.get(m2);
+
+				if (v1 == null || v2 == null)
+					return 0;
+
+				// Special handling for dosage field
+				if ("dosage".equals(sortField)) {
+					// Extract numeric values from dosage strings (e.g., "5mg" -> 5)
+					double num1 = extractNumericValue(v1.toString());
+					double num2 = extractNumericValue(v2.toString());
+					return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
+				} else if (v1 instanceof Date && v2 instanceof Date) {
+					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
+				} else if (v1 instanceof Comparable && v2 instanceof Comparable) {
+					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
+				} else {
+					return 0;
+				}
+			} catch (Exception e) {
+				return 0;
+			}
+		});
+	}
+
 
 	// Helper method to extract numeric value from dosage string
 	private double extractNumericValue(String dosage) {
@@ -4543,5 +4702,15 @@ public class ProcedureController {
 	{
 		resetCurrentMedicine();
 		return "ViewAddedMedicines?faces-redirect=true";
+	}
+	public String viewCurrentMedicines()
+	{
+		this.currentMedFirst=0;
+		return "ViewAddedMedicines?faces-redirect=true";
+	}
+	public String viewCurrentTests()
+	{
+		this.currentTestFirst=0;
+		return "ViewAddedTests?faces-redirect=true";
 	}
 }

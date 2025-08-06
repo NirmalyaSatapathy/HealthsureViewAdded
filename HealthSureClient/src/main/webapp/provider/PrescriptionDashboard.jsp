@@ -91,7 +91,7 @@
 					rendered="#{not empty procedureController.currentPrescribedMedicines}">
 					<div class="button-group">
 						<h:commandButton value="View added medicines"
-							action="ViewAddedMedicines?faces-redirect=true"
+							action="#{procedureController.viewCurrentMedicines()}"
 							styleClass="action-button edit-row" />
 					</div>
 				</h:panelGroup>
@@ -99,7 +99,7 @@
 					rendered="#{not empty procedureController.currentPrescribedTests}">
 					<div class="button-group">
 						<h:commandButton value="View added tests"
-							action="ViewAddedTests?faces-redirect=true"
+							action="#{procedureController.viewCurrentTests()}"
 							styleClass="action-button edit-row" />
 					</div>
 				</h:panelGroup>
