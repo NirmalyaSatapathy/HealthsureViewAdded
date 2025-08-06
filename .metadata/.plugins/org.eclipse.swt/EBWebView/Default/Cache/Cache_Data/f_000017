@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html data-vpvid="3308" lang="en">
+    
+    <head>
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            
+        <meta charset="UTF-8" data-vpvid="3146">
+            
+        <title data-vpvid="3147">Welcome to HMS</title>
+            
+        <link data-vpvid="3148" href="/HealthSureClient/resources/css/style.css" rel="stylesheet" type="text/css">
+        
+    </head>
+    
+    <body class="light-mode" data-vpvid="3305">
+        
+        <f:view data-vpvid="3304">
+                
+    
+            <jsp:include data-vpvid="3150" page="/navbar/Navbar.jsp"></jsp:include>
+                
+    
+            <section class="fullscreen-video-container" data-vpvid="3158" id="home">
+                        
+                <video autoplay="" class="fullscreen-video" data-vpvid="3153" loop="" muted="">
+                                
+                    <source data-vpvid="3151" src="/HealthSureClient/resources/media/videos/videoplayback.mp4" type="video/mp4"></source>
+                                
+                    <h:outputText data-vpvid="3152" value="Your browser does not support the video tag."></h:outputText>
+                            
+                </video>
+                        
+                <div class="appointment-button-container" data-vpvid="3157">
+                    		    
+                    <h:form data-vpvid="3156">
+                        		        
+                        <div class="appointment-button-wrapper" data-vpvid="3155">
+                            		            
+                            <h:commandButton action="#{appointmentBean.book}" data-vpvid="3154" styleClass="appointment-button" value="Book Appointment"></h:commandButton>
+                            		        
+                        </div>
+                        		    
+                    </h:form>
+                    		
+                </div>
+                    
+            </section>
+                
+    
+    
+            <section class="section" data-vpvid="3209" id="departments">
+                	
+                <h2 class="section-title" data-vpvid="3159">Our Departments</h2>
+                    
+    
+                <div class="departments-container" data-vpvid="3208">
+                            
+                    <div class="department-card" data-vpvid="3163">
+                                    <img alt="Cardiology" class="department-icon" data-vpvid="3160" src="/HealthSureClient/resources/media/images/departments/cardiology.png">
+            
+                        <h3 data-vpvid="3161">Cardiology</h3>
+                                    
+                        <p data-vpvid="3162">Advanced care for heart-related conditions including diagnostics, surgery, and rehabilitation.</p>
+                                
+                    </div>
+                            
+        
+                    <div class="department-card" data-vpvid="3167">
+                                    <img alt="Neurology" class="department-icon" data-vpvid="3164" src="/HealthSureClient/resources/media/images/departments/neorology.png">
+            
+                        <h3 data-vpvid="3165">Neurology</h3>
+                                    
+                        <p data-vpvid="3166">Specialized treatment for disorders of the brain, spinal cord, and nervous system.</p>
+                                
+                    </div>
+                            
+        
+                    <div class="department-card" data-vpvid="3171">
+                                    <img alt="Orthopedics" class="department-icon" data-vpvid="3168" src="/HealthSureClient/resources/media/images/departments/arthopedics.png">
+            
+                        <h3 data-vpvid="3169">Orthopedics</h3>
+                                    
+                        <p data-vpvid="3170">Comprehensive care for bones, joints, and muscles including surgeries and physical therapy.</p>
+                                
+                    </div>
+                            
+        
+                    <div class="department-card" data-vpvid="3175">
+                                    <img alt="Pediatrics" class="department-icon" data-vpvid="3172" src="/HealthSureClient/resources/media/images/departments/pediatrics.png">
+            
+                        <h3 data-vpvid="3173">Pediatrics</h3>
+                                    
+                        <p data-vpvid="3174">Dedicated to the health and wellness of infants, children, and adolescents.</p>
+                                
+                    </div>
+                            
+        
+                    <div class="department-card" data-vpvid="3179">
+                                    <img alt="Gynecology" class="department-icon" data-vpvid="3176" src="/HealthSureClient/resources/media/images/departments/gynecology.png">
+            
+                        <h3 data-vpvid="3177">Gynecology</h3>
+                                    
+                        <p data-vpvid="3178">Specialized care for women&rsquo;s reproductive health, pregnancy, and childbirth services.</p>
+                                
+                    </div>
+                            
+                    <div class="department-card" data-vpvid="3183">
+                                    <img alt="Dermatology" class="department-icon" data-vpvid="3180" src="/HealthSureClient/resources/media/images/departments/dermatology.png">
+            
+                        <h3 data-vpvid="3181">Dermatology</h3>
+                                    
+                        <p data-vpvid="3182">Diagnosis and treatment of skin, hair, and nail disorders, including cosmetic dermatology.</p>
+                                
+                    </div>
+                            
+                    <div class="department-card" data-vpvid="3187">
+                                    <img alt="ENT" class="department-icon" data-vpvid="3184" src="/HealthSureClient/resources/media/images/departments/ent.png">
+            
+                        <h3 data-vpvid="3185">ENT</h3>
+                                    
+                        <p data-vpvid="3186">Comprehensive care for ear, nose, and throat conditions, including sinus and voice disorders.</p>
+                                
+                    </div>
+                            
+                    <div class="department-card" data-vpvid="3191">
+                                    <img alt="Oncology" class="department-icon" data-vpvid="3188" src="/HealthSureClient/resources/media/images/departments/oncology.png">
+            
+                        <h3 data-vpvid="3189">Oncology</h3>
+                                    
+                        <p data-vpvid="3190">Cutting-edge cancer care through chemotherapy, radiation, surgery, and targeted therapy.</p>
+                                
+                    </div>
+                            
+                    <div class="department-card" data-vpvid="3195">
+                                    <img alt="Nephrology" class="department-icon" data-vpvid="3192" src="/HealthSureClient/resources/media/images/departments/nephrology.png">
+            
+                        <h3 data-vpvid="3193">Nephrology</h3>
+                                    
+                        <p data-vpvid="3194">Expert care for kidney diseases, dialysis services, and transplant follow-up.</p>
+                                
+                    </div>
+                            
+                    <div class="department-card" data-vpvid="3199">
+                                    <img alt="Urology" class="department-icon" data-vpvid="3196" src="/HealthSureClient/resources/media/images/departments/urology.png">
+            
+                        <h3 data-vpvid="3197">Urology</h3>
+                                    
+                        <p data-vpvid="3198">Specialized treatment for urinary tract issues and male reproductive health.</p>
+                                
+                    </div>
+                            
+                    <div class="department-card" data-vpvid="3203">
+                                    <img alt="Gastroenterology" class="department-icon" data-vpvid="3200" src="/HealthSureClient/resources/media/images/departments/gastroenterology.png">
+            
+                        <h3 data-vpvid="3201">Gastroenterology</h3>
+                                    
+                        <p data-vpvid="3202">Advanced diagnostics and treatment for digestive system disorders and liver conditions.</p>
+                                
+                    </div>
+                            
+                    <div class="department-card" data-vpvid="3207">
+                                    <img alt="Psychiatry" class="department-icon" data-vpvid="3204" src="/HealthSureClient/resources/media/images/departments/psychiatry.png">
+            
+                        <h3 data-vpvid="3205">Psychiatry</h3>
+                                    
+                        <p data-vpvid="3206">Mental health services including counseling, psychotherapy, and medication management.</p>
+                                
+                    </div>
+                        
+                </div>
+                	
+            </section>
+            		
+	
+	
+            <section class="section slide-up" data-vpvid="3244" id="doctors">
+                	    
+                <h2 class="section-title" data-vpvid="3210">Our Doctors</h2>
+                	
+	    
+                <div class="doctors-container" data-vpvid="3243">
+                    	        
+                    <div class="doctor-card zoom-in" data-vpvid="3214">
+                        	            <img alt="Dr. Aryan Mehta" class="doctor-photo" data-vpvid="3211" src="/HealthSureClient/resources/media/images/doctors/doctor1.jpg">
+	            
+                        <h3 data-vpvid="3212">Dr. Aryan Mehta</h3>
+                        	            
+                        <p data-vpvid="3213">Cardiologist with 10+ years of experience in interventional procedures and heart surgery.</p>
+                        	        
+                    </div>
+                    	
+	        
+                    <div class="doctor-card zoom-in" data-vpvid="3218">
+                        	            <img alt="Dr. Rhea Sharma" class="doctor-photo" data-vpvid="3215" src="/HealthSureClient/resources/media/images/doctors/doctor2.jpg">
+	            
+                        <h3 data-vpvid="3216">Dr. Rhea Sharma</h3>
+                        	            
+                        <p data-vpvid="3217">Neurologist specializing in epilepsy, stroke, and movement disorders with a decade of clinical excellence.</p>
+                        	        
+                    </div>
+                    	
+	        
+                    <div class="doctor-card zoom-in" data-vpvid="3222">
+                        	            <img alt="Dr. Kunal Verma" class="doctor-photo" data-vpvid="3219" src="/HealthSureClient/resources/media/images/doctors/doctor3.jpg">
+	            
+                        <h3 data-vpvid="3220">Dr. Kunal Verma</h3>
+                        	            
+                        <p data-vpvid="3221">Orthopedic Surgeon expert in joint replacement and sports injuries with global surgical exposure.</p>
+                        	        
+                    </div>
+                    	
+	        
+                    <div class="doctor-card zoom-in" data-vpvid="3226">
+                        	            <img alt="Dr. Sneha Iyer" class="doctor-photo" data-vpvid="3223" src="/HealthSureClient/resources/media/images/doctors/doctor4.jpg">
+	            
+                        <h3 data-vpvid="3224">Dr. Sneha Iyer</h3>
+                        	            
+                        <p data-vpvid="3225">Pediatrician passionate about child wellness, immunization, and early development screening.</p>
+                        	        
+                    </div>
+                    	        
+	        
+                    <div class="doctor-card zoom-in" data-vpvid="3230">
+                                    <img alt="Dr. Nikhil Rao" class="doctor-photo" data-vpvid="3227" src="/HealthSureClient/resources/media/images/doctors/doctor5.jpg">
+            
+                        <h3 data-vpvid="3228">Dr. Nikhil Rao</h3>
+                                    
+                        <p data-vpvid="3229">Dermatologist experienced in treating chronic skin conditions and aesthetic skin procedures.</p>
+                                
+                    </div>
+                            
+                    <div class="doctor-card zoom-in" data-vpvid="3234">
+                                    <img alt="Dr. Ayesha Khan" class="doctor-photo" data-vpvid="3231" src="/HealthSureClient/resources/media/images/doctors/doctor6.jpg">
+            
+                        <h3 data-vpvid="3232">Dr. Ayesha Khan</h3>
+                                    
+                        <p data-vpvid="3233">Gynecologist specializing in high-risk pregnancies, fertility treatments, and laparoscopic surgeries.</p>
+                                
+                    </div>
+                            
+                    <div class="doctor-card zoom-in" data-vpvid="3238">
+                                    <img alt="Dr. Rohan Desai" class="doctor-photo" data-vpvid="3235" src="/HealthSureClient/resources/media/images/doctors/doctor7.jpg">
+            
+                        <h3 data-vpvid="3236">Dr. Rohan Desai</h3>
+                                    
+                        <p data-vpvid="3237">ENT specialist skilled in sinus surgeries, hearing loss treatments, and voice disorders.</p>
+                                
+                    </div>
+                            
+                    <div class="doctor-card zoom-in" data-vpvid="3242">
+                                    <img alt="Dr. Meera Bhatt" class="doctor-photo" data-vpvid="3239" src="/HealthSureClient/resources/media/images/doctors/doctor8.jpg">
+            
+                        <h3 data-vpvid="3240">Dr. Meera Bhatt</h3>
+                                    
+                        <p data-vpvid="3241">Oncologist with deep expertise in chemotherapy, targeted therapy, and patient counseling.</p>
+                                
+                    </div>
+                            
+	    
+                </div>
+                	
+            </section>
+            	
+	
+	
+            <section class="section slide-up" data-vpvid="3275" id="aboutus">
+                	    
+                <h2 class="section-title" data-vpvid="3245">About Us</h2>
+                	    
+	    
+                <p class="section-content" data-vpvid="3247">
+                    	        At <strong data-vpvid="3246">HealthSure</strong>, we believe that healthcare should be a right, not a privilege. We aim to make quality medical services accessible to everyone through innovation, compassion, and care.
+	    
+                </p>
+                	
+	    
+                <p class="section-content" data-vpvid="3248" style="margin-top: 1rem;">
+	        With a state-of-the-art infrastructure, dedicated staff, and modern diagnostic technology, we ensure that every patient receives personalized attention and the highest standard of treatment.
+	    </p>
+                	
+	    
+	    
+                <div class="about-counters" data-vpvid="3261">
+                    	        
+                    <div class="counter-box" data-vpvid="3251">
+                        	            
+                        <div class="counter" data-target="500" data-vpvid="3249">0</div>
+                        	            
+                        <p data-vpvid="3250">Expert Doctors</p>
+                        	        
+                    </div>
+                    	        
+                    <div class="counter-box" data-vpvid="3254">
+                        	            
+                        <div class="counter" data-target="1200" data-vpvid="3252">0</div>
+                        	            
+                        <p data-vpvid="3253">Happy Patients</p>
+                        	        
+                    </div>
+                    	        
+                    <div class="counter-box" data-vpvid="3257">
+                        	            
+                        <div class="counter" data-target="250" data-vpvid="3255">0</div>
+                        	            
+                        <p data-vpvid="3256">Advanced Facilities</p>
+                        	        
+                    </div>
+                    	        
+                    <div class="counter-box" data-vpvid="3260">
+                        	            
+                        <div class="counter" data-target="24" data-vpvid="3258">0</div>
+                        	            
+                        <p data-vpvid="3259">Hours Emergency Care</p>
+                        	        
+                    </div>
+                    	    
+                </div>
+                	
+	    
+	    
+                <div class="about-features" data-vpvid="3274">
+                    	        
+                    <div class="feature-item" data-vpvid="3265">
+                        	            <img alt="Certified" class="feature-icon" data-vpvid="3262" src="/HealthSureClient/resources/media/images/certificate.png">
+	            
+                        <h4 data-vpvid="3263">Internationally Certified</h4>
+                        	            
+                        <p data-vpvid="3264">We follow global standards and protocols with NABH and JCI certifications.</p>
+                        	        
+                    </div>
+                    	        
+                    <div class="feature-item" data-vpvid="3269">
+                        	            <img alt="AI Diagnosis" class="feature-icon" data-vpvid="3266" src="/HealthSureClient/resources/media/images/certificate.png">
+	            
+                        <h4 data-vpvid="3267">AI-Driven Diagnostics</h4>
+                        	            
+                        <p data-vpvid="3268">Advanced AI systems to enhance diagnosis speed and precision.</p>
+                        	        
+                    </div>
+                    	        
+                    <div class="feature-item" data-vpvid="3273">
+                        	            <img alt="24x7 Support" class="feature-icon" data-vpvid="3270" src="/HealthSureClient/resources/media/images/certificate.png">
+	            
+                        <h4 data-vpvid="3271">24x7 Patient Support</h4>
+                        	            
+                        <p data-vpvid="3272">Round-the-clock assistance with instant emergency response teams.</p>
+                        	        
+                    </div>
+                    	    
+                </div>
+                	
+            </section>
+            	
+	
+            <section class="section contact-section slide-up" data-vpvid="3303" id="contact">
+                	    
+                <h2 class="section-title" data-vpvid="3276">Contact Us</h2>
+                	    
+                <p class="section-content" data-vpvid="3277">We&rsquo;re here to answer your questions, assist with appointments, or hear your feedback!</p>
+                	
+	    
+                <div class="contact-card-container" data-vpvid="3302">
+                    	        
+	        
+                    <form class="contact-form-glass" data-vpvid="3291">
+                        	            
+                        <div class="form-group" data-vpvid="3280">
+                            	                <i class="fas fa-user" data-vpvid="3278"></i>
+	                <input data-vpvid="3279" placeholder="Your Name" required="" type="text">
+	            
+                        </div>
+                        	            
+                        <div class="form-group" data-vpvid="3283">
+                            	                <i class="fas fa-envelope" data-vpvid="3281"></i>
+	                <input data-vpvid="3282" placeholder="Your Email" required="" type="email">
+	            
+                        </div>
+                        	            
+                        <div class="form-group" data-vpvid="3286">
+                            	                <i class="fas fa-heading" data-vpvid="3284"></i>
+	                <input data-vpvid="3285" placeholder="Subject" required="" type="text">
+	            
+                        </div>
+                        	            
+                        <div class="form-group" data-vpvid="3289">
+                            	                <i class="fas fa-comment" data-vpvid="3287"></i>
+	                <textarea data-vpvid="3288" placeholder="Your Message" required="" rows="4"></textarea>
+	            
+                        </div>
+                        	            <button class="send-button" data-vpvid="3290" type="submit">Send Message</button>
+	        
+                    </form>
+                    	
+	        
+	        
+                    <div class="contact-info-glass" data-vpvid="3301">
+                        	            
+                        <h3 data-vpvid="3292">Get in Touch</h3>
+                        	            
+                        <p data-vpvid="3294">
+                            <i class="fas fa-map-marker-alt" data-vpvid="3293"></i> 123 HealthSure Street, Bengaluru, India
+                        </p>
+                        	            
+                        <p data-vpvid="3296">
+                            <i class="fas fa-envelope" data-vpvid="3295"></i> support@healthsure.com
+                        </p>
+                        	            
+                        <p data-vpvid="3298">
+                            <i class="fas fa-phone-alt" data-vpvid="3297"></i> +91 99999 99999
+                        </p>
+                        	            
+                        <p data-vpvid="3300">
+                            <i class="fas fa-clock" data-vpvid="3299"></i> Mon&ndash;Sat: 9AM &ndash; 8PM
+                        </p>
+                        	        
+                    </div>
+                    	    
+                </div>
+                	
+            </section>
+            
+        </f:view>
+        
+    </body>
+    
+    <jsp:include data-vpvid="3306" page="/footer/Footer.jsp"></jsp:include>
+    
+    <script data-vpvid="3307">
+document.addEventListener("DOMContentLoaded", function () {
+    const counters = document.querySelectorAll('.counter');
+
+    const startCounter = (counter) => {
+        const target = +counter.getAttribute('data-target');
+        const duration = 4000; // in ms
+        const step = Math.ceil(target / (duration / 30)); // frames every 30ms
+        let current = 0;
+
+        const updateCount = () => {
+            current += step;
+            if (current >= target) {
+                counter.innerText = target + "+";
+            } else {
+                counter.innerText = current;
+                requestAnimationFrame(updateCount);
+            }
+        };
+        updateCount();
+    };
+
+    // Trigger animation only when in viewport
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                startCounter(entry.target);
+                observer.unobserve(entry.target); // Animate once
+            }
+        });
+    }, { threshold: 0.5 });
+
+    counters.forEach(counter => observer.observe(counter));
+});
+</script>
+
+</html>
