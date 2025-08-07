@@ -50,7 +50,7 @@ public class ProcedureController {
 	List<PrescribedMedicines> prescribedMedicines = new ArrayList<PrescribedMedicines>();
 	List<ProcedureTest> procedureTests = new ArrayList<ProcedureTest>();
 	List<ProcedureDailyLog> procedureLogs = new ArrayList<ProcedureDailyLog>();
-	private String procedureType; // "single" or "scheduled"
+	private String procedureType; // "single" or "in-progress"
 	private String doctorId;
 	private String procedureId;
 	private String appointmentId;
@@ -60,11 +60,6 @@ public class ProcedureController {
 	private List<Appointment> bookedAppointments;
 	private List<MedicalProcedure> inProgressProcedures;
 	private Appointment procedureAppointment;
-	private int currentPage = 1;
-	private int pageSize = 3;
-	private int totalPages;
-	private String sortField;
-	private boolean sortAscending = true;
 	private boolean flag = true;
 	private List<Prescription> viewPrescriptions = new ArrayList<Prescription>();
 	private List<Prescription> currentPagePrescriptions = new ArrayList<>();
@@ -73,17 +68,15 @@ public class ProcedureController {
 	private List<ProcedureDailyLog> viewLogs = new ArrayList<ProcedureDailyLog>();
 	private List<PrescribedMedicines> currentPrescribedMedicines = new ArrayList<PrescribedMedicines>();
 	private List<ProcedureTest> currentPrescribedTests = new ArrayList<ProcedureTest>();
-	// Pagination variables
+	// Pagination & sorting variables
 	private int currentMedFirst=0;
 	private int currentTestFirst=0;
 	private int currentMedSize=3;
 	private int currentTestSize=3;
 	private int prescriptionFirst = 0;
 	private int prescriptionPageSize = 3; // Default page size
-	// Pagination variables
 	private int medicineFirst = 0;
 	private int medicinePageSize = 3; // Default page size
-	// Pagination variables
 	private int testFirst = 0;
 	private int testPageSize = 3; // Default page size
 	private int logFirst = 0;
@@ -91,8 +84,313 @@ public class ProcedureController {
 	private String action;
 	private boolean validDoctor = false;
 	private boolean firstLongterm = false;
-
+	private boolean ascending = true;
+	private int currentPage = 1;
+	private int pageSize = 3;
+	private int totalPages;
+	private String sortField;
+	private String currentSort;
+	private boolean sortAscending = true;
+	
 	// Getters and setters
+	public String getSortField() {
+		return sortField;
+	}
+
+	public void setSortField(String sortField) {
+		this.sortField = sortField;
+	}
+
+	public List<MedicalProcedure> getInProgressProcedures() {
+		return inProgressProcedures;
+	}
+
+	public void setInProgressProcedures(List<MedicalProcedure> inProgressProcedures) {
+		this.inProgressProcedures = inProgressProcedures;
+	}
+
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public List<Prescription> getViewPrescriptions() {
+		return viewPrescriptions;
+	}
+
+	public void setViewPrescriptions(List<Prescription> viewPrescriptions) {
+		this.viewPrescriptions = viewPrescriptions;
+	}
+
+	public MedicalProcedure getTempProcedure() {
+		return tempProcedure;
+	}
+
+	public void setTempProcedure(MedicalProcedure tempProcedure) {
+		this.tempProcedure = tempProcedure;
+	}
+
+	public Prescription getTempPrescription() {
+		return tempPrescription;
+	}
+
+	public void setTempPrescription(Prescription tempPrescription) {
+		this.tempPrescription = tempPrescription;
+	}
+
+	public PrescribedMedicines getTempMedicine() {
+		return tempMedicine;
+	}
+
+	public void setTempMedicine(PrescribedMedicines tempMedicine) {
+		this.tempMedicine = tempMedicine;
+	}
+
+	public ProcedureTest getTempTest() {
+		return tempTest;
+	}
+
+	public void setTempTest(ProcedureTest tempTest) {
+		this.tempTest = tempTest;
+	}
+
+	public ProcedureDailyLog getTempLog() {
+		return tempLog;
+	}
+
+	public void setTempLog(ProcedureDailyLog tempLog) {
+		this.tempLog = tempLog;
+	}
+
+	public List<PrescribedMedicines> getViewMedicines() {
+		return viewMedicines;
+	}
+
+	public void setViewMedicines(List<PrescribedMedicines> viewMedicines) {
+		this.viewMedicines = viewMedicines;
+	}
+
+	public List<ProcedureTest> getViewTests() {
+		return viewTests;
+	}
+
+	public void setViewTests(List<ProcedureTest> viewTests) {
+		this.viewTests = viewTests;
+	}
+
+	public List<ProcedureDailyLog> getViewLogs() {
+		return viewLogs;
+	}
+
+	public void setViewLogs(List<ProcedureDailyLog> viewLogs) {
+		this.viewLogs = viewLogs;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+
+	public int getTotalPages() {
+		return totalPages;
+	}
+
+	public void setTotalPages(int totalPages) {
+		this.totalPages = totalPages;
+	}
+
+	public String getAppointmentId() {
+		return appointmentId;
+	}
+
+	public void setAppointmentId(String appointmentId) {
+		this.appointmentId = appointmentId;
+	}
+
+	public List<Appointment> getAllBookedAppointments() {
+		return allBookedAppointments;
+	}
+
+	public void setAllBookedAppointments(List<Appointment> allBookedAppointments) {
+		this.allBookedAppointments = allBookedAppointments;
+	}
+
+	public MedicalProcedure getProcedure() {
+		return procedure;
+	}
+
+	public void setProcedure(MedicalProcedure procedure) {
+		this.procedure = procedure;
+	}
+
+	public Prescription getPrescription() {
+		return prescription;
+	}
+
+	public void setPrescription(Prescription prescription) {
+		this.prescription = prescription;
+	}
+
+	public PrescribedMedicines getPrescribedMedicine() {
+		return prescribedMedicine;
+	}
+
+	public void setPrescribedMedicine(PrescribedMedicines prescribedMedicine) {
+		this.prescribedMedicine = prescribedMedicine;
+	}
+
+	public ProcedureTest getProcedureTest() {
+		return procedureTest;
+	}
+
+	public List<Prescription> getPrescriptions() {
+		return prescriptions;
+	}
+
+	public boolean isFlag() {
+		return flag;
+	}
+
+	public void setFlag(boolean flag) {
+		this.flag = flag;
+	}
+
+	public void setPrescriptions(List<Prescription> prescriptions) {
+		this.prescriptions = prescriptions;
+	}
+
+	public List<PrescribedMedicines> getPrescribedMedicines() {
+		return prescribedMedicines;
+	}
+
+	public void setPrescribedMedicines(List<PrescribedMedicines> prescribedMedicines) {
+		this.prescribedMedicines = prescribedMedicines;
+	}
+
+	public List<ProcedureTest> getProcedureTests() {
+		return procedureTests;
+	}
+
+	public void setProcedureTests(List<ProcedureTest> procedureTests) {
+		this.procedureTests = procedureTests;
+	}
+
+	public List<ProcedureDailyLog> getProcedureLogs() {
+		return procedureLogs;
+	}
+
+	public void setProcedureLogs(List<ProcedureDailyLog> procedureLogs) {
+		this.procedureLogs = procedureLogs;
+	}
+
+	public void setProcedureTest(ProcedureTest procedureTest) {
+		this.procedureTest = procedureTest;
+	}
+
+	public int getCurrentPage() {
+		return currentPage;
+	}
+
+	public void setCurrentPage(int currentPage) {
+		this.currentPage = currentPage;
+	}
+
+	public List<MedicalProcedure> getAllScheduledProcedures() {
+		return allScheduledProcedures;
+	}
+
+	public void setAllScheduledProcedures(List<MedicalProcedure> allScheduledProcedures) {
+		this.allScheduledProcedures = allScheduledProcedures;
+	}
+
+	public List<MedicalProcedure> getAllInProgressProcedures() {
+		return allInProgressProcedures;
+	}
+
+	public List<Prescription> getCurrentPagePrescriptions() {
+		return currentPagePrescriptions;
+	}
+
+	public void setCurrentPagePrescriptions(List<Prescription> currentPagePrescriptions) {
+		this.currentPagePrescriptions = currentPagePrescriptions;
+	}
+
+	public void setAllInProgressProcedures(List<MedicalProcedure> allInProgressProcedures) {
+		this.allInProgressProcedures = allInProgressProcedures;
+	}
+	public String getDoctorId() {
+		return doctorId;
+	}
+
+	public void setDoctorId(String doctorId) {
+		this.doctorId = doctorId;
+	}
+
+	public String getProcedureId() {
+		return procedureId;
+	}
+
+	public void setProcedureId(String procedureId) {
+		this.procedureId = procedureId;
+	}
+
+	public List<Appointment> getBookedAppointments() {
+		return bookedAppointments;
+	}
+
+	public void setBookedAppointments(List<Appointment> bookedAppointments) {
+		this.bookedAppointments = bookedAppointments;
+	}
+
+	public Appointment getProcedureAppointment() {
+		return procedureAppointment;
+	}
+
+	public void setProcedureAppointment(Appointment procedureAppointment) {
+		this.procedureAppointment = procedureAppointment;
+	}
+
+	public String getProcedureType() {
+		return procedureType;
+	}
+
+	public void setProcedureType(String procedureType) {
+		this.procedureType = procedureType;
+	}
+
+	public ProcedureController() {
+		super();
+	}
+
+	public ProviderEjbImpl getProviderEjb() {
+		return providerEjb;
+	}
+
+	public void setProviderEjb(ProviderEjbImpl providerEjb) {
+		this.providerEjb = providerEjb;
+	}
+
+	public ProviderDaoImpl getProviderDao() {
+		return providerDao;
+	}
+
+	public void setProviderDao(ProviderDaoImpl providerDao) {
+		this.providerDao = providerDao;
+	}
+
+	public ProcedureDailyLog getProcedureLog() {
+		return procedureLog;
+	}
+
+	public void setProcedureLog(ProcedureDailyLog procedureLog) {
+		this.procedureLog = procedureLog;
+	}
+
+	public boolean isAscending() {
+		return ascending;
+	}
+
+	public void setAscending(boolean ascending) {
+		this.ascending = ascending;
+	}
 	public int getLogFirst() {
 		return logFirst;
 	}
@@ -101,6 +399,29 @@ public class ProcedureController {
 		this.logFirst = logFirst;
 	}
 
+	public int getPrescriptionFirst() {
+		return prescriptionFirst;
+	}
+
+	public void setPrescriptionFirst(int prescriptionFirst) {
+		this.prescriptionFirst = prescriptionFirst;
+	}
+
+	public String getCurrentSort() {
+		return currentSort;
+	}
+
+	public void setCurrentSort(String currentSort) {
+		this.currentSort = currentSort;
+	}
+
+	public int getPrescriptionPageSize() {
+		return prescriptionPageSize;
+	}
+
+	public void setPrescriptionPageSize(int prescriptionPageSize) {
+		this.prescriptionPageSize = prescriptionPageSize;
+	}
 	public int getLogPageSize() {
 		return logPageSize;
 	}
@@ -136,12 +457,7 @@ public class ProcedureController {
 	public int getCurrentTestSize() {
 		return currentTestSize;
 	}
-	public int getCurrentMedicineCurrentPage() {
-		return (currentMedFirst / currentMedSize) + 1;
-	}
-	public int getCurrentTestCurrentPage() {
-		return (currentTestFirst / currentTestSize) + 1;
-	}
+	
 	public void setCurrentTestSize(int curentTestSize) {
 		this.currentTestSize = curentTestSize;
 	}
@@ -161,8 +477,7 @@ public class ProcedureController {
 	public void setLogPageSize(int logPageSize) {
 		this.logPageSize = logPageSize;
 	}
-
-	// Getters and setters
+	
 	public int getTestFirst() {
 		return testFirst;
 	}
@@ -195,7 +510,6 @@ public class ProcedureController {
 		this.testPageSize = testPageSize;
 	}
 
-	// Getters and setters
 	public int getMedicineFirst() {
 		return medicineFirst;
 	}
@@ -221,6 +535,186 @@ public class ProcedureController {
 	}
 
 	// Pagination methods
+	// Single Pagination control for view booked appointments and inprogress procedures
+		public void paginate() {
+			if (allInProgressProcedures != null) {
+				int total = allInProgressProcedures.size();
+				totalPages = (int) Math.ceil((double) total / pageSize);
+				int fromIndex = (currentPage - 1) * pageSize;
+				int toIndex = Math.min(fromIndex + pageSize, total);
+				inProgressProcedures = allInProgressProcedures.subList(fromIndex, toIndex);
+			}
+			if (allBookedAppointments != null) {
+				int total = allBookedAppointments.size();
+				totalPages = (int) Math.ceil((double) total / pageSize);
+				int fromIndex = (currentPage - 1) * pageSize;
+				int toIndex = Math.min(fromIndex + pageSize, total);
+				bookedAppointments = allBookedAppointments.subList(fromIndex, toIndex);
+			}
+		}
+
+		public void nextPage() {
+			if (currentPage < totalPages) {
+				currentPage++;
+				paginate();
+			}
+		}
+
+		public void previousPage() {
+			if (currentPage > 1) {
+				currentPage--;
+				paginate();
+			}
+		}
+
+		public boolean hasPreviousPage() {
+			return currentPage > 1;
+		}
+
+		public boolean hasNextPage() {
+			return currentPage < totalPages;
+		}
+
+		public void goToFirstPage() {
+			currentPage = 1;
+			paginate(); // refresh the current page content
+		}
+
+		public void goToLastPage() {
+			currentPage = totalPages > 0 ? totalPages : 1;
+			paginate(); // refresh the current page content
+		}
+
+		public boolean isSortAscending() {
+			return sortAscending;
+		}
+
+		public void setSortAscending(boolean sortAscending) {
+			this.sortAscending = sortAscending;
+		}
+		// Sorting control methods
+		public void sortByAsc(String field) {
+			this.sortField = field;
+			this.sortAscending = true;
+			sortCurrentList();
+		}
+
+		public void sortByDesc(String field) {
+			this.sortField = field;
+			this.sortAscending = false;
+			sortCurrentList();
+		}
+
+		private void sortCurrentList() {
+			if (allInProgressProcedures != null && !allInProgressProcedures.isEmpty()) {
+				sortInProgressProcedures();
+			} else if (allBookedAppointments != null && !allBookedAppointments.isEmpty()) {
+				sortBookedAppointments();
+			} else if (viewPrescriptions != null && !viewPrescriptions.isEmpty()) {
+				sortPrescriptions();
+			}
+			goToFirstPage(); // Reset to first page after sorting
+		}
+
+		// Comparator-based sorting implementations
+		private void sortPrescriptions() {
+			Comparator<Prescription> comparator = getComparatorForPrescriptionField(sortField);
+			if (comparator != null) {
+				if (!sortAscending) {
+					comparator = comparator.reversed();
+				}
+				viewPrescriptions.sort(comparator);
+			}
+		}
+
+		private void sortInProgressProcedures() {
+			Comparator<MedicalProcedure> comparator = getComparatorForField(sortField);
+			if (comparator != null) {
+				if (!sortAscending) {
+					comparator = comparator.reversed();
+				}
+				allInProgressProcedures.sort(comparator);
+			}
+		}
+
+		private void sortBookedAppointments() {
+			Comparator<Appointment> comparator = getComparatorForBookedField(sortField);
+			if (comparator != null) {
+				if (!sortAscending) {
+					comparator = comparator.reversed();
+				}
+				allBookedAppointments.sort(comparator);
+			}
+		}
+
+		private Comparator<Prescription> getComparatorForPrescriptionField(String field) {
+			switch (field) {
+			case "prescriptionId":
+				return Comparator.comparing(Prescription::getPrescriptionId,
+						Comparator.nullsLast(Comparator.naturalOrder()));
+			case "diagnosis":
+				return Comparator.comparing(p -> p.getProcedure() != null ? p.getProcedure().getDiagnosis() : "",
+						Comparator.nullsLast(Comparator.naturalOrder()));
+			case "procedureDoctor":
+				return Comparator.comparing(p -> p.getDoctor() != null ? p.getDoctor().getDoctorId() : "",
+						Comparator.nullsLast(Comparator.naturalOrder()));
+			case "prescribedDoctor":
+				return Comparator.comparing(p -> p.getPrescribedDoc() != null ? p.getPrescribedDoc().getDoctorId() : "",
+						Comparator.nullsLast(Comparator.naturalOrder()));
+			case "startDate":
+				return Comparator.comparing(Prescription::getStartDate, Comparator.nullsLast(Comparator.naturalOrder()));
+			case "endDate":
+				return Comparator.comparing(Prescription::getEndDate, Comparator.nullsLast(Comparator.naturalOrder()));
+			default:
+				return null;
+			}
+		}
+
+		private Comparator<MedicalProcedure> getComparatorForField(String field) {
+			switch (field) {
+			case "procedureId":
+				return Comparator.comparing(MedicalProcedure::getProcedureId);
+			case "recipientFirstName":
+				return Comparator.comparing(p -> p.getRecipient().getFirstName(), Comparator.nullsLast(String::compareTo));
+			case "recipientLastName":
+				return Comparator.comparing(p -> p.getRecipient().getLastName(), Comparator.nullsLast(String::compareTo));
+			case "doctorName":
+				return Comparator.comparing(p -> p.getDoctor().getDoctorName(), Comparator.nullsLast(String::compareTo));
+			case "providerName":
+				return Comparator.comparing(p -> p.getProvider().getHospitalName(),
+						Comparator.nullsLast(String::compareTo));
+			case "appointmentId":
+				return Comparator.comparing(p -> p.getAppointment().getAppointmentId());
+			case "startedOn":
+				return Comparator.comparing(MedicalProcedure::getFromDate);
+			default:
+				return null;
+			}
+		}
+
+		private Comparator<Appointment> getComparatorForBookedField(String field) {
+			switch (field) {
+			case "appointmentId":
+				return Comparator.comparing(Appointment::getAppointmentId);
+			case "providerId":
+				return Comparator.comparing(a -> a.getProvider().getProviderId(), Comparator.nullsLast(String::compareTo));
+			case "doctorId":
+				return Comparator.comparing(a -> a.getDoctor().getDoctorId(), Comparator.nullsLast(String::compareTo));
+			case "doctorName":
+				return Comparator.comparing(a -> a.getDoctor().getDoctorName(), Comparator.nullsLast(String::compareTo));
+			case "recipientId":
+				return Comparator.comparing(a -> a.getRecipient().gethId(), Comparator.nullsLast(String::compareTo));
+			case "userName":
+				return Comparator.comparing(a -> a.getRecipient().getUserName(), Comparator.nullsLast(String::compareTo));
+			case "bookedAt":
+				return Comparator.comparing(Appointment::getBookedAt, Comparator.nullsLast(Date::compareTo));
+
+			default:
+				return null;
+			}
+		}
+		
+	//view medicines pagination
 	public List<PrescribedMedicines> getPaginatedMedicines() {
 		if (viewMedicines == null || viewMedicines.isEmpty()) {
 			return Collections.emptyList();
@@ -228,31 +722,6 @@ public class ProcedureController {
 		int toIndex = Math.min(medicineFirst + medicinePageSize, viewMedicines.size());
 		return viewMedicines.subList(medicineFirst, toIndex);
 	}
-	public List<PrescribedMedicines> getPaginatedCurrentMedicines() {
-		if (currentPrescribedMedicines == null || currentPrescribedMedicines.isEmpty()) {
-			return Collections.emptyList();
-		}
-		int toIndex = Math.min(currentMedFirst + currentMedSize, currentPrescribedMedicines.size());
-		return currentPrescribedMedicines.subList(currentMedFirst, toIndex);
-	}
-	public List<ProcedureTest> getPaginatedCurrentTests() {
-		if (currentPrescribedTests == null || currentPrescribedTests.isEmpty()) {
-			return Collections.emptyList();
-		}
-		int toIndex = Math.min(currentTestFirst + currentTestSize, currentPrescribedTests.size());
-		return currentPrescribedTests.subList(currentTestFirst, toIndex);
-	}
-	public void nextCurrentMedicinePage() {
-		if (currentMedFirst + currentMedSize < currentPrescribedMedicines.size()) {
-			currentMedFirst += currentMedSize;
-		}
-	}
-	public void nextCurrentTestPage() {
-		if (currentTestFirst + currentTestSize < currentPrescribedTests.size()) {
-			currentTestFirst += currentTestSize;
-		}
-	}
-	
 	public void nextMedicinePage() {
 		if (medicineFirst + medicinePageSize < viewMedicines.size()) {
 			medicineFirst += medicinePageSize;
@@ -263,71 +732,6 @@ public class ProcedureController {
 			medicineFirst -= medicinePageSize;
 		}
 	}
-	public void previousCurrentMedicinePage() {
-		if (currentMedFirst - currentMedSize >= 0) {
-			currentMedFirst -= currentMedFirst;
-		}
-	}
-	public void previousCurrentTestPage() {
-		if (currentTestFirst - currentTestSize >= 0) {
-			currentTestFirst -= currentTestFirst;
-		}
-	}
-	public boolean isCurrentMedicineHasNextPage() {
-		return currentMedFirst + currentMedSize < (currentPrescribedMedicines != null ? currentPrescribedMedicines.size() : 0);
-	}
-	public boolean isCurrentTestHasNextPage() {
-		return currentTestFirst + currentTestSize < (currentPrescribedTests != null ? currentPrescribedTests.size() : 0);
-	}
-	public int getCurrentMedicineTotalPages() {
-		if (currentPrescribedMedicines == null || currentPrescribedMedicines.isEmpty()) {
-			return 0;
-		}
-		return (int) Math.ceil((double) currentPrescribedMedicines.size() / currentMedSize);
-	}
-	public int getCurrentTestTotalPages() {
-		if (currentPrescribedTests == null || currentPrescribedTests.isEmpty()) {
-			return 0;
-		}
-		return (int) Math.ceil((double) currentPrescribedTests.size() / currentTestSize);
-	}
-	// Pagination methods
-	public List<ProcedureDailyLog> getPaginatedLogs() {
-		if (viewLogs == null || viewLogs.isEmpty()) {
-			return Collections.emptyList();
-		}
-		int toIndex = Math.min(logFirst + logPageSize, viewLogs.size());
-		return viewLogs.subList(logFirst, toIndex);
-	}
-
-	public void nextLogPage() {
-		if (logFirst + logPageSize < viewLogs.size()) {
-			logFirst += logPageSize;
-		}
-	}
-
-	public void previousLogPage() {
-		if (logFirst - logPageSize >= 0) {
-			logFirst -= logPageSize;
-		}
-	}
-
-	public boolean isLogHasNextPage() {
-		return logFirst + logPageSize < (viewLogs != null ? viewLogs.size() : 0);
-	}
-
-	public int getLogTotalPages() {
-		if (viewLogs == null || viewLogs.isEmpty()) {
-			return 0;
-		}
-		return (int) Math.ceil((double) viewLogs.size() / logPageSize);
-	}
-
-	public int getLogCurrentPage() {
-		return (logFirst / logPageSize) + 1;
-	}
-
-
 	public boolean isMedicineHasNextPage() {
 		return medicineFirst + medicinePageSize < (viewMedicines != null ? viewMedicines.size() : 0);
 	}
@@ -336,12 +740,81 @@ public class ProcedureController {
 		int size = viewMedicines != null ? viewMedicines.size() : 0;
 		return (int) Math.ceil((double) size / medicinePageSize);
 	}
-
 	public int getMedicineCurrentPage() {
 		return (medicineFirst / medicinePageSize) + 1;
 	}
-
-	// Pagination methods
+	//end
+	
+	//view current medicines pagination
+	public List<PrescribedMedicines> getPaginatedCurrentMedicines() {
+		if (currentPrescribedMedicines == null || currentPrescribedMedicines.isEmpty()) {
+			return Collections.emptyList();
+		}
+		int toIndex = Math.min(currentMedFirst + currentMedSize, currentPrescribedMedicines.size());
+		return currentPrescribedMedicines.subList(currentMedFirst, toIndex);
+	}
+	public void nextCurrentMedicinePage() {
+		if (currentMedFirst + currentMedSize < currentPrescribedMedicines.size()) {
+			currentMedFirst += currentMedSize;
+		}
+	}
+	public void previousCurrentMedicinePage() {
+		if (currentMedFirst - currentMedSize >= 0) {
+			currentMedFirst -= currentMedFirst;
+		}
+	}
+	public boolean isCurrentMedicineHasNextPage() {
+		return currentMedFirst + currentMedSize < (currentPrescribedMedicines != null ? currentPrescribedMedicines.size() : 0);
+	}
+	public int getCurrentMedicineTotalPages() {
+		if (currentPrescribedMedicines == null || currentPrescribedMedicines.isEmpty()) {
+			return 0;
+		}
+		return (int) Math.ceil((double) currentPrescribedMedicines.size() / currentMedSize);
+	}
+	public int getCurrentMedicineCurrentPage() {
+		return (currentMedFirst / currentMedSize) + 1;
+	}
+	//end
+	
+	//view current tests pagination
+	public List<ProcedureTest> getPaginatedCurrentTests() {
+		if (currentPrescribedTests == null || currentPrescribedTests.isEmpty()) {
+			return Collections.emptyList();
+		}
+		int toIndex = Math.min(currentTestFirst + currentTestSize, currentPrescribedTests.size());
+		return currentPrescribedTests.subList(currentTestFirst, toIndex);
+	}
+	
+	public void nextCurrentTestPage() {
+		if (currentTestFirst + currentTestSize < currentPrescribedTests.size()) {
+			currentTestFirst += currentTestSize;
+		}
+	}
+	
+	
+	public void previousCurrentTestPage() {
+		if (currentTestFirst - currentTestSize >= 0) {
+			currentTestFirst -= currentTestFirst;
+		}
+	}
+	
+	public boolean isCurrentTestHasNextPage() {
+		return currentTestFirst + currentTestSize < (currentPrescribedTests != null ? currentPrescribedTests.size() : 0);
+	}
+	
+	public int getCurrentTestTotalPages() {
+		if (currentPrescribedTests == null || currentPrescribedTests.isEmpty()) {
+			return 0;
+		}
+		return (int) Math.ceil((double) currentPrescribedTests.size() / currentTestSize);
+	}
+	public int getCurrentTestCurrentPage() {
+		return (currentTestFirst / currentTestSize) + 1;
+	}
+	//end
+	
+	//view tests pagination
 	public List<ProcedureTest> getPaginatedTests() {
 		if (viewTests == null || viewTests.isEmpty()) {
 			return Collections.emptyList();
@@ -376,35 +849,46 @@ public class ProcedureController {
 	public int getTestCurrentPage() {
 		return (testFirst / testPageSize) + 1;
 	}
-
-	private String currentSort;
-
-	// Getters and setters
-	public int getPrescriptionFirst() {
-		return prescriptionFirst;
+	//end
+	
+	//view logs pagination
+	public List<ProcedureDailyLog> getPaginatedLogs() {
+		if (viewLogs == null || viewLogs.isEmpty()) {
+			return Collections.emptyList();
+		}
+		int toIndex = Math.min(logFirst + logPageSize, viewLogs.size());
+		return viewLogs.subList(logFirst, toIndex);
 	}
 
-	public void setPrescriptionFirst(int prescriptionFirst) {
-		this.prescriptionFirst = prescriptionFirst;
+	public void nextLogPage() {
+		if (logFirst + logPageSize < viewLogs.size()) {
+			logFirst += logPageSize;
+		}
 	}
 
-	public String getCurrentSort() {
-		return currentSort;
+	public void previousLogPage() {
+		if (logFirst - logPageSize >= 0) {
+			logFirst -= logPageSize;
+		}
 	}
 
-	public void setCurrentSort(String currentSort) {
-		this.currentSort = currentSort;
+	public boolean isLogHasNextPage() {
+		return logFirst + logPageSize < (viewLogs != null ? viewLogs.size() : 0);
 	}
 
-	public int getPrescriptionPageSize() {
-		return prescriptionPageSize;
+	public int getLogTotalPages() {
+		if (viewLogs == null || viewLogs.isEmpty()) {
+			return 0;
+		}
+		return (int) Math.ceil((double) viewLogs.size() / logPageSize);
 	}
 
-	public void setPrescriptionPageSize(int prescriptionPageSize) {
-		this.prescriptionPageSize = prescriptionPageSize;
+	public int getLogCurrentPage() {
+		return (logFirst / logPageSize) + 1;
 	}
+	//end
 
-	// Pagination methods
+	//view prescriptions pagination
 	public List<Prescription> getPaginatedPrescriptions() {
 		if (viewPrescriptions == null || viewPrescriptions.isEmpty()) {
 			return Collections.emptyList();
@@ -437,18 +921,9 @@ public class ProcedureController {
 	public int getPrescriptionCurrentPage() {
 		return (prescriptionFirst / prescriptionPageSize) + 1;
 	}
-
-	// Sorting methods (similar to InsuranceController)
-	private boolean ascending = true;
-
-	public boolean isAscending() {
-		return ascending;
-	}
-
-	public void setAscending(boolean ascending) {
-		this.ascending = ascending;
-	}
-
+	//end
+	
+	// Sorting methods
 	public void sortByAsc(String listType, String field) {
 		currentSort = "asc";
 		this.sortField = field;
@@ -705,300 +1180,7 @@ public class ProcedureController {
 		});
 	}
 
-	// Getters and Setters for sorting
-	public String getSortField() {
-		return sortField;
-	}
-
-	public void setSortField(String sortField) {
-		this.sortField = sortField;
-	}
-
-	public List<MedicalProcedure> getInProgressProcedures() {
-		return inProgressProcedures;
-	}
-
-	public void setInProgressProcedures(List<MedicalProcedure> inProgressProcedures) {
-		this.inProgressProcedures = inProgressProcedures;
-	}
-
-	public int getPageSize() {
-		return pageSize;
-	}
-
-	public List<Prescription> getViewPrescriptions() {
-		return viewPrescriptions;
-	}
-
-	public void setViewPrescriptions(List<Prescription> viewPrescriptions) {
-		this.viewPrescriptions = viewPrescriptions;
-	}
-
-	public MedicalProcedure getTempProcedure() {
-		return tempProcedure;
-	}
-
-	public void setTempProcedure(MedicalProcedure tempProcedure) {
-		this.tempProcedure = tempProcedure;
-	}
-
-	public Prescription getTempPrescription() {
-		return tempPrescription;
-	}
-
-	public void setTempPrescription(Prescription tempPrescription) {
-		this.tempPrescription = tempPrescription;
-	}
-
-	public PrescribedMedicines getTempMedicine() {
-		return tempMedicine;
-	}
-
-	public void setTempMedicine(PrescribedMedicines tempMedicine) {
-		this.tempMedicine = tempMedicine;
-	}
-
-	public ProcedureTest getTempTest() {
-		return tempTest;
-	}
-
-	public void setTempTest(ProcedureTest tempTest) {
-		this.tempTest = tempTest;
-	}
-
-	public ProcedureDailyLog getTempLog() {
-		return tempLog;
-	}
-
-	public void setTempLog(ProcedureDailyLog tempLog) {
-		this.tempLog = tempLog;
-	}
-
-	public List<PrescribedMedicines> getViewMedicines() {
-		return viewMedicines;
-	}
-
-	public void setViewMedicines(List<PrescribedMedicines> viewMedicines) {
-		this.viewMedicines = viewMedicines;
-	}
-
-	public List<ProcedureTest> getViewTests() {
-		return viewTests;
-	}
-
-	public void setViewTests(List<ProcedureTest> viewTests) {
-		this.viewTests = viewTests;
-	}
-
-	public List<ProcedureDailyLog> getViewLogs() {
-		return viewLogs;
-	}
-
-	public void setViewLogs(List<ProcedureDailyLog> viewLogs) {
-		this.viewLogs = viewLogs;
-	}
-
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
-
-	public int getTotalPages() {
-		return totalPages;
-	}
-
-	public void setTotalPages(int totalPages) {
-		this.totalPages = totalPages;
-	}
-
-	public String getAppointmentId() {
-		return appointmentId;
-	}
-
-	public void setAppointmentId(String appointmentId) {
-		this.appointmentId = appointmentId;
-	}
-
-	public List<Appointment> getAllBookedAppointments() {
-		return allBookedAppointments;
-	}
-
-	public void setAllBookedAppointments(List<Appointment> allBookedAppointments) {
-		this.allBookedAppointments = allBookedAppointments;
-	}
-
-	public MedicalProcedure getProcedure() {
-		return procedure;
-	}
-
-	public void setProcedure(MedicalProcedure procedure) {
-		this.procedure = procedure;
-	}
-
-	public Prescription getPrescription() {
-		return prescription;
-	}
-
-	public void setPrescription(Prescription prescription) {
-		this.prescription = prescription;
-	}
-
-	public PrescribedMedicines getPrescribedMedicine() {
-		return prescribedMedicine;
-	}
-
-	public void setPrescribedMedicine(PrescribedMedicines prescribedMedicine) {
-		this.prescribedMedicine = prescribedMedicine;
-	}
-
-	public ProcedureTest getProcedureTest() {
-		return procedureTest;
-	}
-
-	public List<Prescription> getPrescriptions() {
-		return prescriptions;
-	}
-
-	public boolean isFlag() {
-		return flag;
-	}
-
-	public void setFlag(boolean flag) {
-		this.flag = flag;
-	}
-
-	public void setPrescriptions(List<Prescription> prescriptions) {
-		this.prescriptions = prescriptions;
-	}
-
-	public List<PrescribedMedicines> getPrescribedMedicines() {
-		return prescribedMedicines;
-	}
-
-	public void setPrescribedMedicines(List<PrescribedMedicines> prescribedMedicines) {
-		this.prescribedMedicines = prescribedMedicines;
-	}
-
-	public List<ProcedureTest> getProcedureTests() {
-		return procedureTests;
-	}
-
-	public void setProcedureTests(List<ProcedureTest> procedureTests) {
-		this.procedureTests = procedureTests;
-	}
-
-	public List<ProcedureDailyLog> getProcedureLogs() {
-		return procedureLogs;
-	}
-
-	public void setProcedureLogs(List<ProcedureDailyLog> procedureLogs) {
-		this.procedureLogs = procedureLogs;
-	}
-
-	public void setProcedureTest(ProcedureTest procedureTest) {
-		this.procedureTest = procedureTest;
-	}
-
-	public int getCurrentPage() {
-		return currentPage;
-	}
-
-	public void setCurrentPage(int currentPage) {
-		this.currentPage = currentPage;
-	}
-
-	public List<MedicalProcedure> getAllScheduledProcedures() {
-		return allScheduledProcedures;
-	}
-
-	public void setAllScheduledProcedures(List<MedicalProcedure> allScheduledProcedures) {
-		this.allScheduledProcedures = allScheduledProcedures;
-	}
-
-	public List<MedicalProcedure> getAllInProgressProcedures() {
-		return allInProgressProcedures;
-	}
-
-	public List<Prescription> getCurrentPagePrescriptions() {
-		return currentPagePrescriptions;
-	}
-
-	public void setCurrentPagePrescriptions(List<Prescription> currentPagePrescriptions) {
-		this.currentPagePrescriptions = currentPagePrescriptions;
-	}
-
-	public void setAllInProgressProcedures(List<MedicalProcedure> allInProgressProcedures) {
-		this.allInProgressProcedures = allInProgressProcedures;
-	}
-
-	// ✅ Getters & setters
-	public String getDoctorId() {
-		return doctorId;
-	}
-
-	public void setDoctorId(String doctorId) {
-		this.doctorId = doctorId;
-	}
-
-	public String getProcedureId() {
-		return procedureId;
-	}
-
-	public void setProcedureId(String procedureId) {
-		this.procedureId = procedureId;
-	}
-
-	public List<Appointment> getBookedAppointments() {
-		return bookedAppointments;
-	}
-
-	public void setBookedAppointments(List<Appointment> bookedAppointments) {
-		this.bookedAppointments = bookedAppointments;
-	}
-
-	public Appointment getProcedureAppointment() {
-		return procedureAppointment;
-	}
-
-	public void setProcedureAppointment(Appointment procedureAppointment) {
-		this.procedureAppointment = procedureAppointment;
-	}
-
-	public String getProcedureType() {
-		return procedureType;
-	}
-
-	public void setProcedureType(String procedureType) {
-		this.procedureType = procedureType;
-	}
-
-	public ProcedureController() {
-		super();
-	}
-
-	public ProviderEjbImpl getProviderEjb() {
-		return providerEjb;
-	}
-
-	public void setProviderEjb(ProviderEjbImpl providerEjb) {
-		this.providerEjb = providerEjb;
-	}
-
-	public ProviderDaoImpl getProviderDao() {
-		return providerDao;
-	}
-
-	public void setProviderDao(ProviderDaoImpl providerDao) {
-		this.providerDao = providerDao;
-	}
-
-	public ProcedureDailyLog getProcedureLog() {
-		return procedureLog;
-	}
-
-	public void setProcedureLog(ProcedureDailyLog procedureLog) {
-		this.procedureLog = procedureLog;
-	}
-
+//add single_day medical procedure	
 	public String addSingleDayMedicalProcedureController(MedicalProcedure medicalProcedure)
 			throws ClassNotFoundException, SQLException {
 		providerDao = new ProviderDaoImpl();
@@ -1163,6 +1345,7 @@ public class ProcedureController {
 		return "ProcedureDashboard?faces-redirect=true";
 	}
 
+//add in_progress medical procedure
 	public String addInProgressMedicalProcedureController(MedicalProcedure medicalProcedure)
 			throws ClassNotFoundException, SQLException {
 		providerDao = new ProviderDaoImpl();
@@ -1324,6 +1507,7 @@ public class ProcedureController {
 		return "LongTermProcedureDashboard?faces-redirect=true";
 	}
 
+//add test for new prescription
 	public String addTestController(ProcedureTest procedureTest) throws ClassNotFoundException, SQLException {
 		procedureTests.removeIf(p -> p.getTestId().equals(procedureTest.getTestId()));
 		currentPrescribedTests.removeIf(p -> p.getTestId().equals(procedureTest.getTestId()));
@@ -1425,6 +1609,7 @@ public class ProcedureController {
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
 
+//add medicine for new prescription
 	public String addPresribedMedicinesController(PrescribedMedicines prescribedMedicine)
 			throws ClassNotFoundException, SQLException {
 
@@ -1628,6 +1813,7 @@ public class ProcedureController {
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
 
+//add prescription
 	public String addPrescriptionController(Prescription prescription) throws ClassNotFoundException, SQLException {
 
 		prescriptions.removeIf(p -> p.getPrescriptionId().equals(prescription.getPrescriptionId()));
@@ -1855,6 +2041,7 @@ public class ProcedureController {
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
 
+	// add procedure log
 	public String addProcedureLogController(ProcedureDailyLog procedureLog)
 			throws ClassNotFoundException, SQLException {
 		procedureLogs.removeIf(p -> p.getLogId().equals(procedureLog.getLogId()));
@@ -1986,6 +2173,7 @@ public class ProcedureController {
 		return "LongTermProcedureDashboard?faces-redirect=true";
 	}
 
+	//create new procedure object
 	public String createNewProcedure() throws ClassNotFoundException, SQLException {
 		FacesContext context = FacesContext.getCurrentInstance();
 		if (procedureType == null) {
@@ -2027,6 +2215,7 @@ public class ProcedureController {
 		return nextPage;
 	}
 
+	//create new prescription object
 	public String createNewPrescription() throws ClassNotFoundException, SQLException {
 		prescription = new Prescription();
 
@@ -2046,6 +2235,7 @@ public class ProcedureController {
 		return "AddPrescription?faces-redirect=true";
 	}
 
+	//create new medicine object for new prescription
 	public String createNewPrescribedMedicine() throws ClassNotFoundException, SQLException {
 		prescribedMedicine = new PrescribedMedicines();
 
@@ -2057,7 +2247,8 @@ public class ProcedureController {
 		prescribedMedicine.setStartDate(new Date());
 		return "AddPrescribedMedicine?faces-redirect=true";
 	}
-
+	
+//create new medicine object for existing prescription
 	public String createNewexistingPrescPrescribedMedicine() throws ClassNotFoundException, SQLException {
 		prescribedMedicine = new PrescribedMedicines();
 
@@ -2078,6 +2269,7 @@ public class ProcedureController {
 		return "AddExistingPrescMedicine?faces-redirect=true";
 	}
 
+	//create new test object for existing prescription
 	public String createNewExistingPrescProcedureTest() throws ClassNotFoundException, SQLException {
 		procedureTest = new ProcedureTest();
 
@@ -2098,6 +2290,7 @@ public class ProcedureController {
 		return "AddExistingTest?faces-redirect=true";
 	}
 
+	//create new test object for new prescription
 	public String createNewProcedureTest() throws ClassNotFoundException, SQLException {
 		procedureTest = new ProcedureTest();
 
@@ -2110,6 +2303,7 @@ public class ProcedureController {
 		return "AddTest?faces-redirect=true";
 	}
 
+	//create new procedurelog object
 	public String createNewProcedureLog() throws ClassNotFoundException, SQLException {
 		procedureLog = new ProcedureDailyLog();
 
@@ -2132,6 +2326,7 @@ public class ProcedureController {
 		return "AddProcedureLog?faces-redirect=true";
 	}
 
+	//fetch inprogress procedures form doctor id
 	public String fetchInProgressProceduresController() {
 		allInProgressProcedures = null;
 		inProgressProcedures = null;
@@ -2190,6 +2385,7 @@ public class ProcedureController {
 		return null;
 	}
 
+	//fetch booked appointments from doctor id
 	public List<Appointment> fetchBookedAppointments() {
 		allBookedAppointments = null;
 		bookedAppointments = null;
@@ -2250,216 +2446,10 @@ public class ProcedureController {
 		return allBookedAppointments;
 	}
 
-	// Paginations
-	public void paginate() {
-		if (allInProgressProcedures != null) {
-			int total = allInProgressProcedures.size();
-			totalPages = (int) Math.ceil((double) total / pageSize);
-			int fromIndex = (currentPage - 1) * pageSize;
-			int toIndex = Math.min(fromIndex + pageSize, total);
-			inProgressProcedures = allInProgressProcedures.subList(fromIndex, toIndex);
-		}
-		if (allBookedAppointments != null) {
-			int total = allBookedAppointments.size();
-			totalPages = (int) Math.ceil((double) total / pageSize);
-			int fromIndex = (currentPage - 1) * pageSize;
-			int toIndex = Math.min(fromIndex + pageSize, total);
-			bookedAppointments = allBookedAppointments.subList(fromIndex, toIndex);
-		}
-	}
-
-	public void nextPage() {
-		if (currentPage < totalPages) {
-			currentPage++;
-			paginate();
-		}
-	}
-
-	public void previousPage() {
-		if (currentPage > 1) {
-			currentPage--;
-			paginate();
-		}
-	}
-
-	public boolean hasPreviousPage() {
-		return currentPage > 1;
-	}
-
-	public boolean hasNextPage() {
-		return currentPage < totalPages;
-	}
-
-	public void goToFirstPage() {
-		currentPage = 1;
-		paginate(); // refresh the current page content
-	}
-
-	public void goToLastPage() {
-		currentPage = totalPages > 0 ? totalPages : 1;
-		paginate(); // refresh the current page content
-	}
-
-	public boolean isSortAscending() {
-		return sortAscending;
-	}
-
-	public void setSortAscending(boolean sortAscending) {
-		this.sortAscending = sortAscending;
-	}
-
-	// Sorting logic
-	// Sorting control methods
-	public void sortByAsc(String field) {
-		this.sortField = field;
-		this.sortAscending = true;
-		sortCurrentList();
-	}
-
-	public void sortByDesc(String field) {
-		this.sortField = field;
-		this.sortAscending = false;
-		sortCurrentList();
-	}
-
-	private void sortCurrentList() {
-		if (allInProgressProcedures != null && !allInProgressProcedures.isEmpty()) {
-			sortInProgressProcedures();
-		} else if (allBookedAppointments != null && !allBookedAppointments.isEmpty()) {
-			sortBookedAppointments();
-		} else if (viewPrescriptions != null && !viewPrescriptions.isEmpty()) {
-			sortPrescriptions();
-		}
-		goToFirstPage(); // Reset to first page after sorting
-	}
-
-	// Comparator-based sorting implementations
-	private void sortPrescriptions() {
-		Comparator<Prescription> comparator = getComparatorForPrescriptionField(sortField);
-		if (comparator != null) {
-			if (!sortAscending) {
-				comparator = comparator.reversed();
-			}
-			viewPrescriptions.sort(comparator);
-		}
-	}
-
-	private void sortInProgressProcedures() {
-		Comparator<MedicalProcedure> comparator = getComparatorForField(sortField);
-		if (comparator != null) {
-			if (!sortAscending) {
-				comparator = comparator.reversed();
-			}
-			allInProgressProcedures.sort(comparator);
-		}
-	}
-
-	private void sortBookedAppointments() {
-		Comparator<Appointment> comparator = getComparatorForBookedField(sortField);
-		if (comparator != null) {
-			if (!sortAscending) {
-				comparator = comparator.reversed();
-			}
-			allBookedAppointments.sort(comparator);
-		}
-	}
-
-	private Comparator<Prescription> getComparatorForPrescriptionField(String field) {
-		switch (field) {
-		case "prescriptionId":
-			return Comparator.comparing(Prescription::getPrescriptionId,
-					Comparator.nullsLast(Comparator.naturalOrder()));
-		case "diagnosis":
-			return Comparator.comparing(p -> p.getProcedure() != null ? p.getProcedure().getDiagnosis() : "",
-					Comparator.nullsLast(Comparator.naturalOrder()));
-		case "procedureDoctor":
-			return Comparator.comparing(p -> p.getDoctor() != null ? p.getDoctor().getDoctorId() : "",
-					Comparator.nullsLast(Comparator.naturalOrder()));
-		case "prescribedDoctor":
-			return Comparator.comparing(p -> p.getPrescribedDoc() != null ? p.getPrescribedDoc().getDoctorId() : "",
-					Comparator.nullsLast(Comparator.naturalOrder()));
-		case "startDate":
-			return Comparator.comparing(Prescription::getStartDate, Comparator.nullsLast(Comparator.naturalOrder()));
-		case "endDate":
-			return Comparator.comparing(Prescription::getEndDate, Comparator.nullsLast(Comparator.naturalOrder()));
-		default:
-			return null;
-		}
-	}
-
-	private Comparator<MedicalProcedure> getComparatorForField(String field) {
-		switch (field) {
-		case "procedureId":
-			return Comparator.comparing(MedicalProcedure::getProcedureId);
-		case "recipientFirstName":
-			return Comparator.comparing(p -> p.getRecipient().getFirstName(), Comparator.nullsLast(String::compareTo));
-		case "recipientLastName":
-			return Comparator.comparing(p -> p.getRecipient().getLastName(), Comparator.nullsLast(String::compareTo));
-		case "doctorName":
-			return Comparator.comparing(p -> p.getDoctor().getDoctorName(), Comparator.nullsLast(String::compareTo));
-		case "providerName":
-			return Comparator.comparing(p -> p.getProvider().getHospitalName(),
-					Comparator.nullsLast(String::compareTo));
-		case "appointmentId":
-			return Comparator.comparing(p -> p.getAppointment().getAppointmentId());
-		case "startedOn":
-			return Comparator.comparing(MedicalProcedure::getFromDate);
-		default:
-			return null;
-		}
-	}
-
-	private Comparator<Appointment> getComparatorForBookedField(String field) {
-		switch (field) {
-		case "appointmentId":
-			return Comparator.comparing(Appointment::getAppointmentId);
-		case "providerId":
-			return Comparator.comparing(a -> a.getProvider().getProviderId(), Comparator.nullsLast(String::compareTo));
-		case "doctorId":
-			return Comparator.comparing(a -> a.getDoctor().getDoctorId(), Comparator.nullsLast(String::compareTo));
-		case "doctorName":
-			return Comparator.comparing(a -> a.getDoctor().getDoctorName(), Comparator.nullsLast(String::compareTo));
-		case "recipientId":
-			return Comparator.comparing(a -> a.getRecipient().gethId(), Comparator.nullsLast(String::compareTo));
-		case "userName":
-			return Comparator.comparing(a -> a.getRecipient().getUserName(), Comparator.nullsLast(String::compareTo));
-		case "bookedAt":
-			return Comparator.comparing(Appointment::getBookedAt, Comparator.nullsLast(Date::compareTo));
-
-		default:
-			return null;
-		}
-	}
-
-	// Scheduled Reset
-	public String resetPage() {
-		// Reset form input fields
-		this.doctorId = null;
-		this.procedureId = null;
-
-		// Clear data lists
-		this.allScheduledProcedures = null;
-
-		// Reset sorting
-		this.sortField = null;
-		this.sortAscending = true;
-
-		// Reset pagination
-		this.currentPage = 1;
-		this.totalPages = 0;
-		this.pageSize = 3; // or your default page size
-
-		// Optional: reset internal tracking states if any
-		this.procedure = null;
-
-		// Clear JSF view tree to force reload
-		FacesContext.getCurrentInstance().getViewRoot().getChildren().clear();
-
-		// Redirect to the same page to reset everything
-		return null;
-	}
-
-	// In-progress reset
+	
+//reset buttons
+	
+	// Inprogress reset 
 	public String resetSearchForm() {
 		this.doctorId = null;
 		this.procedureId = null;
@@ -2489,33 +2479,8 @@ public class ProcedureController {
 		return null; // Return the same page name for reload
 	}
 
-	// Scheduled back button
-	public String goToDashboard1() {
-		this.doctorId = null;
-		this.procedureId = null;
-
-		// Clear data lists
-		this.allScheduledProcedures = null;
-
-		// Reset sorting
-		this.sortField = null;
-		this.sortAscending = true;
-
-		// Reset pagination
-		this.currentPage = 1;
-		this.totalPages = 0;
-		this.pageSize = 3; // or your default page size
-
-		// Optional: reset internal tracking states if any
-		this.procedure = null;
-
-		// Clear JSF view tree to force reload
-		FacesContext.getCurrentInstance().getViewRoot().getChildren().clear();
-
-		return "ProviderDashboard?faces-redirect=true";
-	}
-
-	// ongoing backbutton
+//back buttons
+	// Inprogress backbutton
 	public String goToDashboard2() {
 		this.doctorId = null;
 		this.procedureId = null;
@@ -2544,14 +2509,61 @@ public class ProcedureController {
 		FacesContext.getCurrentInstance().getViewRoot().getChildren().clear();
 		return "ProviderDashboard?faces-redirect=true";
 	}
+//prescription dashboard back button
+	public String backFromPrescription() {
+		FacesContext context = FacesContext.getCurrentInstance();
+		boolean flag = false;
 
+		if (prescribedMedicines != null) {
+			for (PrescribedMedicines pm : prescribedMedicines) {
+				if (pm.getPrescription() != null
+						&& pm.getPrescription().getPrescriptionId().equals(this.prescription.getPrescriptionId())) {
+					flag = true;
+					break;
+				}
+			}
+		}
+
+		if (!flag && procedureTests != null) {
+			for (ProcedureTest pt : procedureTests) {
+				if (pt.getPrescription() != null
+						&& pt.getPrescription().getPrescriptionId().equals(this.prescription.getPrescriptionId())) {
+					flag = true;
+					break;
+				}
+			}
+		}
+
+		if (flag) {
+			context.addMessage("back", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+					"Medicines/Tests are added. Please click on Submit.", null));
+			return null;
+		}
+
+		String result = "";
+
+		if (procedure != null) {
+			if (procedure.getProcedureStatus() == ProcedureStatus.COMPLETED
+					&& procedure.getType() == ProcedureType.SINGLE_DAY) {
+				result = "ProcedureDashboard?faces-redirect=true";
+			}
+			if (procedure.getProcedureStatus() == ProcedureStatus.IN_PROGRESS
+					&& procedure.getType() == ProcedureType.LONG_TERM) {
+				result = "LongTermProcedureDashboard?faces-redirect=true";
+			}
+		}
+
+		return result;
+	}
+	
+//submit the procedure,prescriptions,medicines,tests,logs
 	public String procedureSubmit() throws ClassNotFoundException, SQLException {
 		FacesContext context = FacesContext.getCurrentInstance();
 		// Step 1: Save the procedure
 		if (providerEjb.generateNewProcedureId().equalsIgnoreCase(procedure.getProcedureId())) {
 			providerEjb.addMedicalProcedure(procedure);
 			// Send completion email if status is COMPLETED
-//for long term procedure the status will be in progress when this method is called
+			//for long term procedure the status will be in progress when this method is called
 			if (procedure.getProcedureStatus() == ProcedureStatus.COMPLETED) {
 				try {
 					ServletContext servletContext = (ServletContext) context.getExternalContext().getContext();
@@ -2675,6 +2687,7 @@ public class ProcedureController {
 
 	}
 
+	//submit prescription details(medicines & tests)
 	public String prescriptionDetailsSubmit() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		boolean hasItems = false;
@@ -2723,52 +2736,8 @@ public class ProcedureController {
 		return result;
 	}
 
-	public String backFromPrescription() {
-		FacesContext context = FacesContext.getCurrentInstance();
-		boolean flag = false;
-
-		if (prescribedMedicines != null) {
-			for (PrescribedMedicines pm : prescribedMedicines) {
-				if (pm.getPrescription() != null
-						&& pm.getPrescription().getPrescriptionId().equals(this.prescription.getPrescriptionId())) {
-					flag = true;
-					break;
-				}
-			}
-		}
-
-		if (!flag && procedureTests != null) {
-			for (ProcedureTest pt : procedureTests) {
-				if (pt.getPrescription() != null
-						&& pt.getPrescription().getPrescriptionId().equals(this.prescription.getPrescriptionId())) {
-					flag = true;
-					break;
-				}
-			}
-		}
-
-		if (flag) {
-			context.addMessage("back", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Medicines/Tests are added. Please click on Submit.", null));
-			return null;
-		}
-
-		String result = "";
-
-		if (procedure != null) {
-			if (procedure.getProcedureStatus() == ProcedureStatus.COMPLETED
-					&& procedure.getType() == ProcedureType.SINGLE_DAY) {
-				result = "ProcedureDashboard?faces-redirect=true";
-			}
-			if (procedure.getProcedureStatus() == ProcedureStatus.IN_PROGRESS
-					&& procedure.getType() == ProcedureType.LONG_TERM) {
-				result = "LongTermProcedureDashboard?faces-redirect=true";
-			}
-		}
-
-		return result;
-	}
-
+	
+//mark the procedure as completed
 	public String completeProcedure(MedicalProcedure procedure) {
 
 		System.out.println("in completeProcedure controller");
@@ -2867,6 +2836,7 @@ public class ProcedureController {
 
 	}
 
+	//add procedure detail for already started long term procedure
 	public String goToAddProcedureDetails(MedicalProcedure p) {
 		this.flag = false;
 
@@ -2896,11 +2866,7 @@ public class ProcedureController {
 		return "LongTermProcedureDashboard?faces-redirect=true"; // Change path if needed
 	}
 
-	public List<Appointment> showBookedAppointmentsController() {
-		providerDao = new ProviderDaoImpl();
-		return providerDao.showBookedAppointments();
-	}
-
+	//add procedure for the selected booked appointment(loads the selected appointment from booked appointments)
 	public String selectedAppointment(Appointment app) {
 		System.out.println("controller called for selecting the appointment" + app);
 		this.procedureAppointment = app;
@@ -2909,6 +2875,8 @@ public class ProcedureController {
 		return "ProcedureOptions?faces-redirect=true";
 	}
 
+	//edit methods
+	//edit procedure
 	public String gotoProcedureForm() {
 		System.out.println("in edit procedure________________" + procedure);
 		String res = "";
@@ -2940,6 +2908,7 @@ public class ProcedureController {
 		return res;
 	}
 
+	//loads all prescriptions for a procedure
 	public String loadViewPrescriptions() {
 		this.viewPrescriptions.clear();
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -2957,6 +2926,7 @@ public class ProcedureController {
 		return "ViewPrescriptions?faces-redirect=true";
 	}
 
+	//loads all medicines for a prescription
 	public String loadViewMedicines(Prescription p) {
 		System.out.println("loadViewMedicines called");
 		this.viewMedicines.clear();
@@ -2975,6 +2945,7 @@ public class ProcedureController {
 		return "ViewMedicines?faces-redirect=true";
 	}
 
+	//loads all tests for a prescription
 	public String loadViewTests(Prescription p) {
 		this.viewTests.clear();
 		this.testFirst = 0;
@@ -2991,6 +2962,7 @@ public class ProcedureController {
 		return "ViewTests?faces-redirect=true";
 	}
 
+	//loads all the logs for a procedure
 	public String loadViewLogs() {
 		this.viewLogs.clear();
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -3006,6 +2978,8 @@ public class ProcedureController {
 		return "ViewLogs?faces-redirect=true";
 	}
 
+//update methods
+	//update existing prescription
 	public String updatePrescription(Prescription p) throws ClassNotFoundException, SQLException {
 		Boolean isValid = true;
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -3177,6 +3151,7 @@ public class ProcedureController {
 		return null;
 	}
 
+	//update existing medicine
 	public String updateMedicine(PrescribedMedicines pm) throws ClassNotFoundException, SQLException {
 		Boolean isValid = true;
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -3344,6 +3319,7 @@ public class ProcedureController {
 		return null;
 	}
 
+	//update existing test
 	public String updateTest(ProcedureTest test) throws ClassNotFoundException, SQLException {
 		Boolean isValid = true;
 		test.setPrescription(prescription);
@@ -3433,6 +3409,7 @@ public class ProcedureController {
 		return null;
 	}
 
+	//update existing log
 	public String updateLog(ProcedureDailyLog log) throws ClassNotFoundException, SQLException {
 
 		if (procedureLogs != null && !procedureLogs.isEmpty()) {
@@ -3450,6 +3427,7 @@ public class ProcedureController {
 		return null;
 	}
 
+//edit existing prescription
 	public String editPrescription(Prescription p) {
 		this.prescription = p;
 		System.out.println("procedure type " + procedure.getType());
@@ -3467,7 +3445,7 @@ public class ProcedureController {
 		tempPrescription.setNotes(p.getNotes());
 		return "EditPrescription?faces-redirect=true";
 	}
-
+//edit existing medicine
 	public String editMedicine(PrescribedMedicines pm) {
 		this.prescribedMedicine = pm;
 		if (procedure.getType() == ProcedureType.SINGLE_DAY) {
@@ -3486,7 +3464,7 @@ public class ProcedureController {
 		tempMedicine.setNotes(pm.getNotes());
 		return "EditMedicine?faces-redirect=true";
 	}
-
+//edit existing test
 	public String editTest(ProcedureTest t) {
 		this.procedureTest = t;
 		if (procedure.getType() == ProcedureType.SINGLE_DAY) {
@@ -3502,7 +3480,7 @@ public class ProcedureController {
 		tempTest.setResultSummary(t.getResultSummary());
 		return "EditTest?faces-redirect=true";
 	}
-
+//edit existing log
 	public String editLog(ProcedureDailyLog l) {
 		this.procedureLog = l;
 		if (this.firstLongterm) {
@@ -3516,21 +3494,21 @@ public class ProcedureController {
 		tempLog.setNotes(l.getNotes());
 		return "EditLog?faces-redirect=true";
 	}
-
+//reset edited prescription(existing)
 	public String resetEditPrescription() throws ClassNotFoundException, SQLException {
 		this.prescription.setStartDate(tempPrescription.getStartDate());
 		this.prescription.setEndDate(tempPrescription.getEndDate());
 		this.prescription.setNotes(tempPrescription.getNotes());
 		return "EditPrescription?faces-redirect=true";
 	}
-
+//reset edited prescription(last prescription)
 	public String resetEditLastPrescription() throws ClassNotFoundException, SQLException {
 		this.prescription.setStartDate(tempPrescription.getStartDate());
 		this.prescription.setEndDate(tempPrescription.getEndDate());
 		this.prescription.setNotes(tempPrescription.getNotes());
 		return "EditLastPrescription?faces-redirect=true";
 	}
-
+//reset edited medicine(existing)
 	public String restEditMedicine() throws ClassNotFoundException, SQLException {
 		this.prescribedMedicine.setStartDate(tempMedicine.getStartDate());
 		this.prescribedMedicine.setEndDate(tempMedicine.getEndDate());
@@ -3539,7 +3517,7 @@ public class ProcedureController {
 		this.prescribedMedicine.setNotes(tempMedicine.getNotes());
 		return "EditMedicine?faces-redirect=true";
 	}
-
+//reset edited medicine(last medicine)
 	public String restEditLastMedicine() throws ClassNotFoundException, SQLException {
 		this.prescribedMedicine.setStartDate(tempMedicine.getStartDate());
 		this.prescribedMedicine.setEndDate(tempMedicine.getEndDate());
@@ -3548,25 +3526,26 @@ public class ProcedureController {
 		this.prescribedMedicine.setNotes(tempMedicine.getNotes());
 		return "EditLastMedicine?faces-redirect=true";
 	}
-
+//reset edited test(existing)
 	public String restEditTest() throws ClassNotFoundException, SQLException {
 		this.procedureTest.setResultSummary(tempTest.getResultSummary());
 		this.procedureTest.setTestDate(tempTest.getTestDate());
 		return "EditTest?faces-redirect=true";
 	}
-
+//reset edited test(last test)
 	public String restEditLastTest() throws ClassNotFoundException, SQLException {
 		this.procedureTest.setResultSummary(tempTest.getResultSummary());
 		this.procedureTest.setTestDate(tempTest.getTestDate());
 		return "EditLastTest?faces-redirect=true";
 	}
-
+//reset edited log(existing)
 	public String restEditLog() throws ClassNotFoundException, SQLException {
 		this.procedureLog.setVitals(tempLog.getVitals());
 		this.procedureLog.setNotes(tempLog.getNotes());
 		return "EditLog?faces-redirect=true";
 	}
 
+	//back from view prescription page
 	public String backFromViewPrescription() {
 		this.procedure.setDiagnosis(tempProcedure.getDiagnosis());
 		this.procedure.setRecommendations(tempProcedure.getRecommendations());
@@ -3577,6 +3556,7 @@ public class ProcedureController {
 		}
 	}
 
+//update inprogress procedure
 	public String updateInprogressProcedure(MedicalProcedure p) {
 		FacesContext context = FacesContext.getCurrentInstance();
 		boolean isValid = true;
@@ -3600,7 +3580,8 @@ public class ProcedureController {
 		this.tempProcedure = p;
 		return "LongTermProcedureDashboard?faces-redirect=true";
 	}
-
+	
+//update single day procedure
 	public String updateSingleDayProcedure(MedicalProcedure p) {
 		FacesContext context = FacesContext.getCurrentInstance();
 		boolean isValid = true;
@@ -3624,7 +3605,7 @@ public class ProcedureController {
 		this.tempProcedure = p;
 		return "ProcedureDashboard?faces-redirect=true";
 	}
-
+//update medicine(last added)
 	public String updateLastMedicine(PrescribedMedicines pm) {
 		boolean isValid = true;
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -3751,6 +3732,7 @@ public class ProcedureController {
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
 
+//update last added test
 	public String updateLastTest(ProcedureTest t) {
 		Boolean isValid = true;
 		t.setPrescription(prescription);
@@ -3800,7 +3782,7 @@ public class ProcedureController {
 		}
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
-
+//update last added prescription
 	public String updateLastPrescription(Prescription p) throws ClassNotFoundException, SQLException {
 		Boolean isValid = true;
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -3950,19 +3932,19 @@ public class ProcedureController {
 		}
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
-
+//reset edited inprogress procedure
 	public String resetInProgress() {
 		this.procedure.setDiagnosis(tempProcedure.getDiagnosis());
 		this.procedure.setRecommendations(tempProcedure.getRecommendations());
 		return "EditInProgressProcedure?faces-redirect=true";
 	}
-
+//reset edited single day procedure
 	public String resetSingleDay() {
 		this.procedure.setDiagnosis(tempProcedure.getDiagnosis());
 		this.procedure.setRecommendations(tempProcedure.getRecommendations());
 		return "EditSingleDayProcedure?faces-redirect=true";
 	}
-
+//edit last added medicine
 	public String editLastMedicine() {
 		tempMedicine = new PrescribedMedicines();
 		tempMedicine.setStartDate(this.prescribedMedicine.getStartDate());
@@ -3972,13 +3954,13 @@ public class ProcedureController {
 		tempMedicine.setNotes(this.prescribedMedicine.getNotes());
 		return "EditLastMedicine?faces-redirect=true";
 	}
-
+//edit last added test
 	public String editLastTest() {
 		tempTest = new ProcedureTest();
 		tempTest.setResultSummary(this.procedureTest.getResultSummary());
 		return "EditLastTest?faces-redirect=true";
 	}
-
+//edit last added prescription
 	public String editLastPrescription() {
 		tempPrescription = new Prescription();
 		tempPrescription.setStartDate(this.prescription.getStartDate());
@@ -3986,7 +3968,7 @@ public class ProcedureController {
 		tempPrescription.setNotes(this.prescription.getNotes());
 		return "EditLastPrescription?faces-redirect=true";
 	}
-
+//add medicineto existing prescription
 	public String addExistingPrescMedicine(PrescribedMedicines pm) {
 		prescribedMedicines.removeIf(p -> p.getPrescribedId().equals(pm.getPrescribedId()));
 
@@ -4173,7 +4155,7 @@ public class ProcedureController {
 		loadViewMedicines(prescription);
 		return "ViewMedicines?faces-redirect=true";
 	}
-
+//add test to existing prescription
 	public String addExistingPrescTest(ProcedureTest t) {
 		procedureTests.removeIf(p -> p.getTestId().equals(procedureTest.getTestId()));
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -4263,64 +4245,64 @@ public class ProcedureController {
 		loadViewTests(prescription);
 		return "ViewTests?faces-redirect=true";
 	}
-
+//back from edit test page(existing)
 	public String backFromEditTest() throws ClassNotFoundException, SQLException {
 		restEditTest();
 		return "ViewTests?faces-redirect=true";
 	}
-
+//back from edit prescription page(existing)
 	public String backFromEditPrescription() throws ClassNotFoundException, SQLException {
 		resetEditPrescription();
 		return "ViewPrescriptions?faces-redirect=true";
 	}
-
+//back from edit medicine page(existing)
 	public String backFromEditMedicine() throws ClassNotFoundException, SQLException {
 		restEditMedicine();
 		return "ViewMedicines?faces-redirect=true";
 	}
-
+//back from edit logs page(existing)
 	public String backFromEditLogs() throws ClassNotFoundException, SQLException {
 		restEditLog();
 		return "ViewLogs?faces-redirect=true";
 	}
-
+//back from edit prescription page(new added prescription)
 	public String backFromLastPrescription() throws ClassNotFoundException, SQLException {
 		resetEditPrescription();
 		System.out.println("returning to prescription dashboard");
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
-
+//back from edit medicine page(new added medicine)
 	public String backFromLastMedicine() throws ClassNotFoundException, SQLException {
 		restEditMedicine();
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
-
+//back from edit test page(new added test)
 	public String backFromLastTest() throws ClassNotFoundException, SQLException {
 		restEditTest();
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
-
+//formats date into user friendly format
 	private String formatDate(Date date) {
 		if (date == null)
 			return "";
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 		return sdf.format(date);
 	}
-
+//back from add medicine page(new prescription)
 	public String backFromAddMedicine() {
 		if (prescribedMedicines != null && !prescribedMedicines.isEmpty()) {
 			this.prescribedMedicine = prescribedMedicines.get(prescribedMedicines.size() - 1);
 		}
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
-
+//back from add test page(new prescription)
 	public String backFromAddTest() {
 		if (procedureTests != null && !procedureTests.isEmpty()) {
 			this.procedureTest = procedureTests.get(procedureTests.size() - 1);
 		}
 		return "PrescriptionDashboard?faces-redirect=true";
 	}
-
+//authenticates the doctor trying to make changes in prescription
 	public String authenticatePrescriptionDoctor(String doctorId) {
 		FacesContext context = FacesContext.getCurrentInstance();
 		if (doctorId == null || doctorId.trim().isEmpty()) {
@@ -4356,7 +4338,7 @@ public class ProcedureController {
 		}
 		return null;
 	}
-
+	//authenticates the doctor trying to make changes in procedure log
 	public String authenticateLogDoctor(String doctorId) {
 		FacesContext context = FacesContext.getCurrentInstance();
 		if (doctorId == null || doctorId.trim().isEmpty()) {
@@ -4402,6 +4384,7 @@ public class ProcedureController {
 //		}
 //		return "ViewAddedMedicines?faces-redirect=true";
 //	}
+//edit currently added medicine from view added list
 	public String editCurrentMedicine(PrescribedMedicines pm) {
 		this.prescribedMedicine = pm;
 		tempMedicine = new PrescribedMedicines();
@@ -4412,6 +4395,7 @@ public class ProcedureController {
 		tempMedicine.setNotes(pm.getNotes());
 		return "EditCurrentMedicine?faces-redirect=true";
 	}
+	//edit currently added test from view added list
 	public String editCurrentTest(ProcedureTest t) {
 		this.procedureTest = t;
 		tempTest = new ProcedureTest();
@@ -4419,6 +4403,7 @@ public class ProcedureController {
 		tempTest.setResultSummary(t.getResultSummary());
 		return "EditCurrentTest?faces-redirect=true";
 	}
+	//update currently added medicine from view added list
 	public String updateCurrentMedicine(PrescribedMedicines pm) throws ClassNotFoundException, SQLException {
 		Boolean isValid = true;
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -4589,6 +4574,7 @@ public class ProcedureController {
 
 		return "ViewAddedMedicines?faces-redirect=true";
 	}
+	//update currently added test from view added list
 	public String updateCurrentTest(ProcedureTest test) throws ClassNotFoundException, SQLException {
 		Boolean isValid = true;
 		test.setPrescription(prescription);
@@ -4680,6 +4666,7 @@ public class ProcedureController {
 
 		return "ViewAddedTests?faces-redirect=true";
 	}
+	//reset edited medicine(view added medicines list)
 	public String resetCurrentMedicine() throws ClassNotFoundException, SQLException {
 		this.prescribedMedicine.setStartDate(tempMedicine.getStartDate());
 		this.prescribedMedicine.setEndDate(tempMedicine.getEndDate());
@@ -4688,29 +4675,90 @@ public class ProcedureController {
 		this.prescribedMedicine.setNotes(tempMedicine.getNotes());
 		return "EditCurrentMedicine?faces-redirect=true";
 	}
+	//reset edited test(view added tests list)
 	public String resetCurrentTest() throws ClassNotFoundException, SQLException {
 		this.procedureTest.setResultSummary(tempTest.getResultSummary());
 		this.procedureTest.setTestDate(tempTest.getTestDate());
 		return "EditCurrentTest?faces-redirect=true";
 	}
+	//back from edit test(view added tests list)
 	public String backFromCurrentTest() throws ClassNotFoundException, SQLException
 	{
 		resetCurrentTest();
 		return "ViewAddedTests?faces-redirect=true";
 	}
+	//back from edit medicine(view added medicines list)
 	public String backFromCurrentMedicine() throws ClassNotFoundException, SQLException
 	{
 		resetCurrentMedicine();
 		return "ViewAddedMedicines?faces-redirect=true";
 	}
+	//redirect to view added medicines page
 	public String viewCurrentMedicines()
 	{
 		this.currentMedFirst=0;
 		return "ViewAddedMedicines?faces-redirect=true";
 	}
+	//redirect to view added tests page
 	public String viewCurrentTests()
 	{
 		this.currentTestFirst=0;
 		return "ViewAddedTests?faces-redirect=true";
 	}
+//	// Scheduled Reset method
+//	public String resetPage() {
+//		// Reset form input fields
+//		this.doctorId = null;
+//		this.procedureId = null;
+//
+//		// Clear data lists
+//		this.allScheduledProcedures = null;
+//
+//		// Reset sorting
+//		this.sortField = null;
+//		this.sortAscending = true;
+//
+//		// Reset pagination
+//		this.currentPage = 1;
+//		this.totalPages = 0;
+//		this.pageSize = 3; // or your default page size
+//
+//		// Optional: reset internal tracking states if any
+//		this.procedure = null;
+//
+//		// Clear JSF view tree to force reload
+//		FacesContext.getCurrentInstance().getViewRoot().getChildren().clear();
+//
+//		// Redirect to the same page to reset everything
+//		return null;
+//	}
+//	// Scheduled back button
+//		public String goToDashboard1() {
+//			this.doctorId = null;
+//			this.procedureId = null;
+//
+//			// Clear data lists
+//			this.allScheduledProcedures = null;
+//
+//			// Reset sorting
+//			this.sortField = null;
+//			this.sortAscending = true;
+//
+//			// Reset pagination
+//			this.currentPage = 1;
+//			this.totalPages = 0;
+//			this.pageSize = 3; // or your default page size
+//
+//			// Optional: reset internal tracking states if any
+//			this.procedure = null;
+//
+//			// Clear JSF view tree to force reload
+//			FacesContext.getCurrentInstance().getViewRoot().getChildren().clear();
+//
+//			return "ProviderDashboard?faces-redirect=true";
+//		}
+//	public List<Appointment> showBookedAppointmentsController() {
+//		providerDao = new ProviderDaoImpl();
+//		return providerDao.showBookedAppointments();
+//	}
 }

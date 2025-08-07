@@ -278,7 +278,9 @@ input.action-button.secondary[disabled] {
                             </h:panelGroup>
                         </h:panelGroup>
                     </f:facet>
-                    <h:outputText value="#{t.testDate}" />
+                    <h:outputText value="#{t.testDate}">
+                    <f:convertDateTime pattern="yyyy-MM-dd" />
+                    </h:outputText>
                 </h:column>
                 
                 <h:column>
