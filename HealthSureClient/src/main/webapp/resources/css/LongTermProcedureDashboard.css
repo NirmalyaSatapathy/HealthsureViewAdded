@@ -18,6 +18,11 @@ body {
 	margin-top: 130px;
 }
 
+.error-message {
+	margin-top: 5px;
+	color: red;
+	font-size: 12px;
+}
 .nav-title {
 	font-size: 2rem;
 	font-weight: 700;

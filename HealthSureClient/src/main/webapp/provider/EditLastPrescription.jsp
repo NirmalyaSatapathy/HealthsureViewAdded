@@ -160,7 +160,7 @@
 							immediate="true"
 							action="#{procedureController.resetEditLastPrescription()}" />
 						<h:commandButton value="back"
-							action="#{procedureController.backFromLastPrescription()}" />
+							action="#{procedureController.backFromLastPrescription()}"
 						styleClass="shared-button" />
 					</div>
 				</h:form>

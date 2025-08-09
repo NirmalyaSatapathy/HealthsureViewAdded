@@ -8,7 +8,109 @@
 	<meta charset="UTF-8">
 	<title>Procedure Navigation Panel</title>
 	<link rel="stylesheet" href="css/healthsure-style.css" />
-	<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/ProcedureDashboard.css" />
+	<style>
+	
+.error-message {
+	margin-top: 5px;
+	color: red;
+	font-size: 12px;
+}
+body {
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	background-color: #f2f7fb;
+	margin: 0;
+	padding: 0;
+}
+
+.nav-container {
+	max-width: 720px;
+	margin: 60px auto;
+	padding: 2rem;
+	background-color: #ffffff;
+	border-radius: 0.75rem;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+	text-align: center;
+	margin-top: 130px;
+}
+
+.nav-title {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #2c3e50;
+	margin-bottom: 1.5rem;
+	line-height: 1.2;
+}
+
+.summary-section {
+	text-align: left;
+	margin-bottom: 1.5rem;
+	padding: 1rem 1.5rem;
+	background-color: #f8f9fa;
+	border-left: 4px solid #17a2b8;
+	border-radius: 0.5rem;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.summary-item {
+	font-size: 1rem;
+	margin-bottom: 0.5rem;
+	color: #34495e;
+}
+
+.button-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+.button-group {
+	flex: 0 1 140px;
+}
+
+/* Base Button Styling */
+.action-button {
+	display: inline-block;
+	width: 100%;
+	padding: 0.4rem 0.4rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+	border: none;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	text-decoration: none;
+}
+
+/* 🔵 First Row Buttons */
+.action-button.first-row {
+	background-color: mediumturquoise;
+	color: white;
+}
+
+.action-button.first-row:hover {
+	background-color: lightgray;
+	color: #1f2937;
+}
+
+/* 🟢 Second Row Buttons */
+.action-button.second-row {
+	background-color: grey;
+	color: #1f2937;
+}
+
+.action-button.second-row:hover {
+	background-color: darkseagreen;
+	color: white;
+}
+
+.action-button:focus {
+	outline: 2px solid #31b0d5;
+	outline-offset: 2px;
+}
+	</style>
 </head>
 <body>
 	<jsp:include page="/navbar/NavProvider.jsp" />
@@ -62,8 +164,9 @@
 			<div class="button-row">
 				<div class="button-group">
 					<h:commandButton value="Submit Procedure"
-						action="#{procedureController.procedureSubmit()}"
+						id="submit" action="#{procedureController.procedureSubmit()}"
 						styleClass="action-button second-row" />
+						<h:message for="submit" styleClass="error-message" />
 				</div>
 				<h:panelGroup layout="block" rendered="#{procedureController.isFlag() ne false}">
 					<div class="button-group">

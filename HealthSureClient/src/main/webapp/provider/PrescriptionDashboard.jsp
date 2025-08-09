@@ -80,14 +80,6 @@
 			<!-- 🟡 Row 2: Edit Actions -->
 			<div class="button-row">
 				<h:panelGroup
-					rendered="#{procedureController.prescribedMedicine != null and not empty procedureController.prescribedMedicines}">
-					<div class="button-group">
-						<h:commandButton value="Edit Last Medicine"
-							action="#{procedureController.editLastMedicine()}"
-							styleClass="action-button edit-row" />
-					</div>
-				</h:panelGroup>
-				<h:panelGroup
 					rendered="#{not empty procedureController.currentPrescribedMedicines}">
 					<div class="button-group">
 						<h:commandButton value="View added medicines"
@@ -100,14 +92,6 @@
 					<div class="button-group">
 						<h:commandButton value="View added tests"
 							action="#{procedureController.viewCurrentTests()}"
-							styleClass="action-button edit-row" />
-					</div>
-				</h:panelGroup>
-				<h:panelGroup
-					rendered="#{procedureController.procedureTest != null and not empty procedureController.procedureTests}">
-					<div class="button-group">
-						<h:commandButton value="Edit Last Test"
-							action="#{procedureController.editLastTest}"
 							styleClass="action-button edit-row" />
 					</div>
 				</h:panelGroup>

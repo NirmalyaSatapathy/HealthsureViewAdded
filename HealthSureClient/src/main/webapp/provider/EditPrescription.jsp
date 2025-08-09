@@ -341,7 +341,7 @@ label {
 								immediate="true"
 								action="#{procedureController.resetEditPrescription()}" />
 							<h:commandButton value="back"
-								action="#{procedureController.backFromEditPrescription()}" />
+								action="#{procedureController.backFromEditPrescription()}"
 							styleClass="shared-button" />
 						</div>
 					</h:panelGroup>

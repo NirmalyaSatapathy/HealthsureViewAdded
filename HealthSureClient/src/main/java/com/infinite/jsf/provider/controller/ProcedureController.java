@@ -2558,7 +2558,24 @@ public class ProcedureController {
 	
 //submit the procedure,prescriptions,medicines,tests,logs
 	public String procedureSubmit() throws ClassNotFoundException, SQLException {
-		FacesContext context = FacesContext.getCurrentInstance();
+	    FacesContext context = FacesContext.getCurrentInstance();
+	    boolean hasItems = false;
+
+	    if (prescriptions != null && !prescriptions.isEmpty()) {
+	        hasItems = true;
+	    }
+
+	    if (procedureLogs != null && !procedureLogs.isEmpty()) {
+	        hasItems = true;
+	    }
+
+	    if (!hasItems) {
+	        context.addMessage("submit",
+	            new FacesMessage(FacesMessage.SEVERITY_ERROR, "No Details added to submit", null));
+	        System.out.println("nothing added returning");
+	        return null;
+	    }
+
 		// Step 1: Save the procedure
 		if (providerEjb.generateNewProcedureId().equalsIgnoreCase(procedure.getProcedureId())) {
 			providerEjb.addMedicalProcedure(procedure);
@@ -2676,7 +2693,7 @@ public class ProcedureController {
 		procedureTests.clear();
 
 		procedureLog = null;
-
+		doctorId=null;
 		procedureLogs.clear();
 		this.firstLongterm = false;
 		this.flag = true;
@@ -2838,7 +2855,7 @@ public class ProcedureController {
 
 	//add procedure detail for already started long term procedure
 	public String goToAddProcedureDetails(MedicalProcedure p) {
-		this.flag = false;
+		this.flag = false;//used to not show the edit procedure button in long term procedure dashboard
 
 		System.out.println("in goToAddProcedureDetails controller");
 
@@ -4704,6 +4721,17 @@ public class ProcedureController {
 	{
 		this.currentTestFirst=0;
 		return "ViewAddedTests?faces-redirect=true";
+	}
+	public String backFromProcedure()
+	{
+		FacesContext context = FacesContext.getCurrentInstance();
+		if ((prescriptions != null && !prescriptions.isEmpty()) ||
+			    (procedureLogs != null && !procedureLogs.isEmpty())) {
+			context.addMessage("back", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+					"Details are added. Please click on Submit.", null));
+			return null;
+			}
+		return "ShowOnGoingProcedures?faces-redirect=true";
 	}
 //	// Scheduled Reset method
 //	public String resetPage() {

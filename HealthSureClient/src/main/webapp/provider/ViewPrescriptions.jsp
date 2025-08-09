@@ -153,7 +153,14 @@
         .sort-icon:hover {
             color: #c5cae9;
         }
-
+ input.action-button.secondary:disabled,
+        input.action-button.secondary[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f0f0f0;
+            border-color: #b0bec5;
+            color: #90a4ae;
+        }
         @media (max-width: 768px) {
             .dashboard-container {
                 padding: 1rem;

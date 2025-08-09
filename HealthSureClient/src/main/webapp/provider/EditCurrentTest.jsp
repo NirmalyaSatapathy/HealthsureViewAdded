@@ -166,6 +166,12 @@ label, h\:outputLabel {
 .shared-button:hover {
 	background-color: #004d40;
 }
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Adds spacing between buttons */
+  margin-top: 12px; /* Optional: adds space above the button row */
+}
 </style>
 <!-- Prevent caching -->
 <meta http-equiv="Cache-Control"

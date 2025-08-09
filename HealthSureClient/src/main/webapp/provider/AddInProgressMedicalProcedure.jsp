@@ -98,6 +98,9 @@
                         <h:commandButton value="Reset Form"
                                          styleClass="btn-reset"
                                          action="#{procedureController.createNewProcedure()}" />
+                                          <h:commandButton value="back"
+                                         styleClass="btn-reset"
+                                         action="ProcedureOptions?faces-redirect=true" />
                     </div>
                 </h:form>
             </div>
