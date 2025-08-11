@@ -908,5 +908,52 @@ public class ProviderDaoImpl implements ProviderDao {
 
 	    return "updated";
 	}
+	@Override
+	public String deletePrescription(String prescriptionId) throws SQLException, ClassNotFoundException {
+	    Connection con = ConnectionHelper.getConnection();
+	    String sql = "DELETE FROM prescription WHERE prescription_id = ?";
+	    PreparedStatement pst = con.prepareStatement(sql);
+	    pst.setString(1, prescriptionId);
+	    int rowsAffected = pst.executeUpdate();
+	    pst.close();
+	    con.close();
+	    return rowsAffected > 0 ? "deleted" : "not found";
+	}
+
+	@Override
+	public String deletePrescribedMedicine(String prescribedId) throws SQLException, ClassNotFoundException {
+	    Connection con = ConnectionHelper.getConnection();
+	    String sql = "DELETE FROM prescribed_medicines WHERE prescribed_id = ?";
+	    PreparedStatement pst = con.prepareStatement(sql);
+	    pst.setString(1, prescribedId);
+	    int rowsAffected = pst.executeUpdate();
+	    pst.close();
+	    con.close();
+	    return rowsAffected > 0 ? "deleted" : "not found";
+	}
+
+	@Override
+	public String deleteTest(String testId) throws SQLException, ClassNotFoundException {
+	    Connection con = ConnectionHelper.getConnection();
+	    String sql = "DELETE FROM prescribed_tests WHERE test_id = ?";
+	    PreparedStatement pst = con.prepareStatement(sql);
+	    pst.setString(1, testId);
+	    int rowsAffected = pst.executeUpdate();
+	    pst.close();
+	    con.close();
+	    return rowsAffected > 0 ? "deleted" : "not found";
+	}
+
+	@Override
+	public String deleteProcedureDailyLog(String logId) throws SQLException, ClassNotFoundException {
+	    Connection con = ConnectionHelper.getConnection();
+	    String sql = "DELETE FROM procedure_daily_log WHERE log_id = ?";
+	    PreparedStatement pst = con.prepareStatement(sql);
+	    pst.setString(1, logId);
+	    int rowsAffected = pst.executeUpdate();
+	    pst.close();
+	    con.close();
+	    return rowsAffected > 0 ? "deleted" : "not found";
+	}
 
 }

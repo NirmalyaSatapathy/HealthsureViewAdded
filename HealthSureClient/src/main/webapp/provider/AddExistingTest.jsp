@@ -199,7 +199,7 @@
                     <h:panelGroup rendered="#{procedureController.procedure.type ne 'SINGLE_DAY' and not procedureController.validDoctor}">
                         <div class="form-group center-group compact-auth">
                             <h:outputLabel for="doctorId" value="Enter Doctor ID:" />
-                            <h:inputText id="doctorId" value="#{procedureController.doctorId}" styleClass="form-control input-small" />
+                            <h:inputText id="doctorId" value="#{procedureController.authDoctorId}" styleClass="form-control input-small" />
                             <h:message for="doctorId" styleClass="error-message" />
 
                             <div class="auth-button-row">

@@ -207,7 +207,7 @@ label, h\:outputLabel {
 
 							<div class="form-group">
 								<h:inputText id="doctorId"
-									value="#{procedureController.doctorId}"
+									value="#{procedureController.authDoctorId}"
 									styleClass="form-control input-small" />
 
 								<h:message for="doctorId" styleClass="error-message" />

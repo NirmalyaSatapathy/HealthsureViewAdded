@@ -161,4 +161,28 @@ public class ProviderBean implements ProviderBeanRemote {
 		return providerDao.updateLog(l);
 	}
 
+	@Override
+	public String deletePrescription(String prescriptionId) throws SQLException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return providerDao.deletePrescription(prescriptionId);
+	}
+
+	@Override
+	public String deletePrescribedMedicine(String prescribedId) throws SQLException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return providerDao.deletePrescribedMedicine(prescribedId);
+	}
+
+	@Override
+	public String deleteTest(String testId) throws SQLException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return providerDao.deleteTest(testId);
+	}
+
+	@Override
+	public String deleteProcedureDailyLog(String logId) throws SQLException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return providerDao.deleteProcedureDailyLog(logId);
+	}
+
 }

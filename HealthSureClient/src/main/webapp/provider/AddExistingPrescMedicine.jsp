@@ -221,7 +221,7 @@ label {
 							<h:outputLabel for="doctorId" value="Enter Doctor ID:" />
 
 							<h:inputText id="doctorId"
-								value="#{procedureController.doctorId}"
+								value="#{procedureController.authDoctorId}"
 								styleClass="form-control input-small" />
 
 							<h:message for="doctorId" styleClass="error" />

@@ -147,4 +147,20 @@ public class ProviderEjbImpl {
 		// TODO Auto-generated method stub
 		return remote.updateLog(l);
 	}
+	public String deletePrescription(String id) throws ClassNotFoundException, SQLException
+	{
+		return remote.deletePrescription(id);
+	}
+	public String deletePrescribedMedicine(String id) throws ClassNotFoundException, SQLException
+	{
+		return remote.deletePrescribedMedicine(id);
+	}
+	public String deleteTest(String id) throws ClassNotFoundException, SQLException
+	{
+		return remote.deleteTest(id);
+	}
+	public String deleteLog(String id) throws ClassNotFoundException, SQLException
+	{
+		return remote.deleteProcedureDailyLog(id);
+	}
 }
