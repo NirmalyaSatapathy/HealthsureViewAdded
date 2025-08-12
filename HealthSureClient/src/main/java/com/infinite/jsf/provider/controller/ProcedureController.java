@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
@@ -2280,8 +2281,9 @@ public class ProcedureController {
 		prescription.setProvider(procedure.getProvider());
 		prescription.setDoctor(procedure.getDoctor());
 		prescription.setRecipient(procedure.getRecipient());
-
-		if (procedure.getType() != ProcedureType.SINGLE_DAY) {
+		
+//these fields are for the prescriptions under existing long term procedures
+		if (procedure.getType() != ProcedureType.SINGLE_DAY && !firstLongterm) {
 			if (prescription.getWrittenOn() == null) {
 				context.addMessage("writtenOn", new FacesMessage(FacesMessage.SEVERITY_ERROR,
 						"Please enter the Prescription Written On date.", null));
@@ -2294,7 +2296,7 @@ public class ProcedureController {
 				context.addMessage("prescribedBy",
 						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please enter the Doctor who prescribed", null));
 				context.validationFailed();
-				isValid = false;
+				isValid = false;    
 			}
 
 			if (prescription.getPrescribedDoc().getDoctorId() != null
@@ -2341,7 +2343,7 @@ public class ProcedureController {
 			context.validationFailed();
 			isValid = false;
 		}
-
+//these are for single day procedure prescription
 		if (procedureType == ProcedureType.SINGLE_DAY) {
 			prescription.setWrittenOn(procedureDate);
 			prescription.getPrescribedDoc().setDoctorId(prescription.getDoctor().getDoctorId());
@@ -2371,32 +2373,39 @@ public class ProcedureController {
 				isValid = false;
 			}
 		}
+		
+		//these are for 1st prescription of a new long term procedure
+		if (procedureType == ProcedureType.LONG_TERM && procedureStatus == ProcedureStatus.IN_PROGRESS && firstLongterm) {
+			prescription.setWrittenOn(procedure.getFromDate());
+			prescription.getPrescribedDoc().setDoctorId(prescription.getDoctor().getDoctorId());
+			prescription.getPrescribedDoc().setDoctorName(prescription.getDoctor().getDoctorName());
+			Date truncatedStartDate = Converter.truncateTime(prescription.getStartDate());
+			Date truncatedEndDate = Converter.truncateTime(prescription.getEndDate());
+			Date truncatedProcedureDate = Converter.truncateTime(procedure.getFromDate());
 
-		if (procedureType == ProcedureType.LONG_TERM && procedureStatus == ProcedureStatus.IN_PROGRESS
-				&& providerEjb.generateNewProcedureId().equalsIgnoreCase(procedure.getProcedureId())) {
-
-			if (!prescription.getPrescribedDoc().getDoctorId()
-					.equalsIgnoreCase(prescription.getDoctor().getDoctorId())) {
-				context.addMessage("prescribedBy", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Prescribed by doctor for same day must be same as procedure doctor as it is same day", null));
-				context.validationFailed();
-				isValid = false;
-			}
-
-			Date truncatedWrittenOn = Converter.truncateTime(prescription.getWrittenOn());
-			Date truncatedFromDate = Converter.truncateTime(fromDate);
-
-			if (!formatDate(truncatedWrittenOn).equals(formatDate(truncatedFromDate))) {
-				context.addMessage("writtenOn", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Written on date (" + formatDate(truncatedWrittenOn)
-								+ ") must be same as procedure start date (" + formatDate(truncatedFromDate) + ").",
+			if (truncatedStartDate.before(truncatedProcedureDate)) {
+				context.addMessage("startDate", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+						"Prescription start date (" + formatDate(truncatedStartDate)
+								+ ") cannot be before the procedure start date (" + formatDate(truncatedProcedureDate) + ").",
 						null));
 				context.validationFailed();
 				isValid = false;
 			}
-		}
 
-		if (procedureType == ProcedureType.LONG_TERM && procedureStatus == ProcedureStatus.IN_PROGRESS) {
+			if (truncatedEndDate.before(truncatedStartDate)) {
+				context.addMessage("endDate",
+						new FacesMessage(FacesMessage.SEVERITY_ERROR,
+								"Prescription end date (" + formatDate(truncatedEndDate)
+										+ ") cannot be before the prescription start date ("
+										+ formatDate(truncatedStartDate) + ").",
+								null));
+				context.validationFailed();
+				isValid = false;
+			}
+		}
+		
+		//these are for prescriptions under existing long term
+		if (procedureType == ProcedureType.LONG_TERM && procedureStatus == ProcedureStatus.IN_PROGRESS && !firstLongterm) {
 			Date writtenOn = Converter.truncateTime(prescription.getWrittenOn());
 
 			if (fromDate == null) {
@@ -2472,23 +2481,54 @@ public class ProcedureController {
 		if (!isValid)
 			return null;
 		loadViewPrescriptions();
-		Date newStart = Converter.truncateTime(prescription.getStartDate());
-
+// written on duplicacy
+		Date newWrittenOn = Converter.truncateTime(prescription.getWrittenOn());
+		for (Prescription existing : viewPrescriptions) {
+			Date existingWrittenOn = Converter.truncateTime(existing.getWrittenOn());
+			if (newWrittenOn.equals(existingWrittenOn)) {
+				FacesContext.getCurrentInstance().addMessage("writtenOn", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+						"A prescription already exists with Written On date: " + formatDate(newWrittenOn), null));
+				FacesContext.getCurrentInstance().validationFailed();
+				return null;
+			}
+		}
+// Written-On Date must not be between existing prescription start and end dates
 		for (Prescription existing : viewPrescriptions) {
 			Date existingStart = Converter.truncateTime(existing.getStartDate());
 			Date existingEnd = Converter.truncateTime(existing.getEndDate());
 
-			// Check if newStart falls within the range of an existing prescription
-			if (!newStart.before(existingStart) && !newStart.after(existingEnd)) {
-				context.addMessage("startDate",
+			// if newWrittenOn is on or between existingStart and existingEnd
+			if (!newWrittenOn.before(existingStart) && !newWrittenOn.after(existingEnd)) {
+				FacesContext.getCurrentInstance().addMessage("writtenOn",
 						new FacesMessage(FacesMessage.SEVERITY_ERROR,
-								"The start date of the new prescription overlaps with an existing prescription from "
-										+ formatDate(existingStart) + " to " + formatDate(existingEnd),
+								"Written On date (" + formatDate(newWrittenOn)
+										+ ") overlaps with existing prescription from " + formatDate(existingStart)
+										+ " to " + formatDate(existingEnd) + ".",
 								null));
-				context.validationFailed();
+				FacesContext.getCurrentInstance().validationFailed();
 				return null;
 			}
 		}
+//start date & end date validation
+//(not required as start date cant be before written on date ,written on date already validated with existing prescription date ranges)
+		
+//		Date newStart = Converter.truncateTime(prescription.getStartDate());
+//		for (Prescription existing : viewPrescriptions) {
+//			Date existingStart = Converter.truncateTime(existing.getStartDate());
+//			Date existingEnd = Converter.truncateTime(existing.getEndDate());
+//
+//			// Check if newStart falls within the range of an existing prescription
+//			if (!newStart.before(existingStart) && !newStart.after(existingEnd)) {
+//				context.addMessage("startDate",
+//						new FacesMessage(FacesMessage.SEVERITY_ERROR,
+//								"The start date of the new prescription overlaps with an existing prescription from "
+//										+ formatDate(existingStart) + " to " + formatDate(existingEnd),
+//								null));
+//				context.validationFailed();
+//				return null;
+//			}
+//		}
+
 		if (!isValid)
 			return null;
 		currentPrescribedMedicines.clear();
@@ -2518,11 +2558,15 @@ public class ProcedureController {
 			context.validationFailed();
 			isValid = false;
 		}
+
+		// 2. Validate Vitals presence
 		if (procedureLog.getVitals().isEmpty()) {
 			context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter vitals", null));
 			context.validationFailed();
 			isValid = false;
 		}
+
+		// 3. Validate logged doctor
 		if (procedureLog.getloggedDoctor().getDoctorId() == null
 				|| procedureLog.getloggedDoctor().getDoctorId().isEmpty()) {
 			context.addMessage("loggedBy",
@@ -2541,10 +2585,11 @@ public class ProcedureController {
 				isValid = false;
 			}
 		}
+
 		if (!isValid)
 			return null;
 
-		// Get procedure fromDate
+		// 4. Validate against procedure start date
 		Date fromDate = procedure.getFromDate();
 		if (fromDate == null) {
 			context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -2554,21 +2599,10 @@ public class ProcedureController {
 		}
 
 		// Truncate time parts before comparison
-		Calendar logCal = Calendar.getInstance();
-		logCal.setTime(logDate);
-		logCal.set(Calendar.HOUR_OF_DAY, 0);
-		logCal.set(Calendar.MINUTE, 0);
-		logCal.set(Calendar.SECOND, 0);
-		logCal.set(Calendar.MILLISECOND, 0);
+		Date truncatedLogDate = Converter.truncateTime(logDate);
+		Date truncatedFromDate = Converter.truncateTime(fromDate);
 
-		Calendar fromCal = Calendar.getInstance();
-		fromCal.setTime(fromDate);
-		fromCal.set(Calendar.HOUR_OF_DAY, 0);
-		fromCal.set(Calendar.MINUTE, 0);
-		fromCal.set(Calendar.SECOND, 0);
-		fromCal.set(Calendar.MILLISECOND, 0);
-
-		if (logCal.getTime().before(fromCal.getTime())) {
+		if (truncatedLogDate.before(truncatedFromDate)) {
 			context.addMessage("logDate",
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Log date (" + sdf.format(logDate)
 							+ ") cannot be before procedure start date (" + sdf.format(fromDate) + ").", null));
@@ -2576,7 +2610,7 @@ public class ProcedureController {
 			isValid = false;
 		}
 
-		// 2. Validate vitals
+		// 5. Vitals formatting rules
 		String vitals = procedureLog.getVitals();
 		if (vitals != null && !vitals.trim().isEmpty()) {
 			vitals = vitals.trim().replaceAll("\\s+", " ");
@@ -2602,7 +2636,7 @@ public class ProcedureController {
 			procedureLog.setVitals(vitals);
 		}
 
-		// Check same-day procedure constraint
+		// 6. Same-day procedure constraint
 		if (providerEjb.generateNewProcedureId().equalsIgnoreCase(procedure.getProcedureId())) {
 			if (!procedureLog.getloggedDoctor().getDoctorId().equalsIgnoreCase(procedure.getDoctor().getDoctorId())) {
 				context.addMessage("loggedBy", new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -2610,8 +2644,7 @@ public class ProcedureController {
 				context.validationFailed();
 				isValid = false;
 			}
-			Date truncatedLogDate = Converter.truncateTime(procedureLog.getLogDate());
-			Date truncatedFromDate = Converter.truncateTime(procedure.getFromDate());
+
 			if (!sdf.format(truncatedLogDate).equalsIgnoreCase(sdf.format(truncatedFromDate))) {
 				context.addMessage("logDate",
 						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Log date must be same as procedure start date ("
@@ -2623,6 +2656,21 @@ public class ProcedureController {
 
 		if (!isValid)
 			return null;
+
+		loadViewLogs();
+		// 7. Prevent duplicate vitals on the same date
+		for (ProcedureDailyLog existing : viewLogs) {
+			Date existingDate = Converter.truncateTime(existing.getLogDate());
+			if (existingDate.equals(truncatedLogDate)
+					&& existing.getVitals().equalsIgnoreCase(procedureLog.getVitals())) {
+				context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+						"Vitals already logged for " + sdf.format(truncatedLogDate), null));
+				context.validationFailed();
+				return null;
+			}
+		}
+
+		// All validations passed — finalize and add
 		procedureLog.setloggedDoctor(providerDao.searchDoctorById(procedureLog.getloggedDoctor().getDoctorId()));
 		procedureLog.setCreatedAt(new Date());
 		procedureLogs.add(procedureLog);
@@ -3151,7 +3199,7 @@ public class ProcedureController {
 		procedureTest = null;
 
 		procedureTests.clear();
-
+		
 		procedureLog = null;
 		doctorId = null;
 		procedureLogs.clear();
@@ -5355,9 +5403,9 @@ public class ProcedureController {
 
 		sortField = null;
 		sortAscending = true;
-		logFirst=0;
-		currentLogsFirst=0;
-		previousLogsFirst=0;
+		logFirst = 0;
+		currentLogsFirst = 0;
+		previousLogsFirst = 0;
 		if ("CURRENT".equals(selectedLogType)) {
 			showCurrent = true;
 			showAll = false;
@@ -5377,11 +5425,33 @@ public class ProcedureController {
 		showAll = true;
 		showCurrent = false;
 		selectedLogType = null;
-		logFirst=0;
-		currentLogsFirst=0;
-		previousLogsFirst=0;
+		logFirst = 0;
+		currentLogsFirst = 0;
+		previousLogsFirst = 0;
 		sortField = null;
 		sortAscending = true;
 		return null;
+	}
+
+	public String backFromViewLogs() {
+		selectedLogType = null;
+		logFirst = 0;
+		currentLogsFirst = 0;
+		previousLogsFirst = 0;
+		sortField = null;
+		sortAscending = true;
+		return "LongTermProcedureDashboard?faces-redirect=true";
+	}
+
+	// Clears out all Patients‐related state and redirects to ProviderDashboard
+	public String resetSection() {
+		ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+
+		// Evict the old session-scoped bean
+		ec.getSessionMap().remove("procedureController");
+
+		// Redirect to Patients page; JSF will build a fresh ProcedureController
+		return "ProviderDashboard?faces-redirect=true";
+
 	}
 }

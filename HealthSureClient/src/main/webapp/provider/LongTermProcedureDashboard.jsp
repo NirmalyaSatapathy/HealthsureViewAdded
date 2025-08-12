@@ -3,12 +3,12 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <f:view>
-<html>
+	<html>
 <head>
-	<meta charset="UTF-8">
-	<title>Procedure Action Panel</title>
-	<link rel="stylesheet" href="css/healthsure-style.css" />
-	<style>
+<meta charset="UTF-8">
+<title>Procedure Action Panel</title>
+<link rel="stylesheet" href="css/healthsure-style.css" />
+<style>
 body {
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	background-color: #f2f7fb;
@@ -32,6 +32,7 @@ body {
 	color: red;
 	font-size: 12px;
 }
+
 .nav-title {
 	font-size: 2rem;
 	font-weight: 700;
@@ -125,8 +126,8 @@ body {
 	font-weight: 500;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
-	</style>
-	
+</style>
+
 </head>
 <body>
 	<jsp:include page="/navbar/NavProvider.jsp" />
@@ -144,7 +145,8 @@ body {
 				<div class="summary-section">
 					<div class="summary-item">
 						<strong>Recipient Name:</strong>
-						<h:outputText value="#{procedureController.procedure.recipient.firstName}" />
+						<h:outputText
+							value="#{procedureController.procedure.recipient.firstName}" />
 					</div>
 					<div class="summary-item">
 						<strong>Diagnosis:</strong>
@@ -158,28 +160,35 @@ body {
 					</div>
 					<div class="summary-item">
 						<strong>Procedure Doctor:</strong>
-						<h:outputText value="#{procedureController.procedure.doctor.doctorName}" />
+						<h:outputText
+							value="#{procedureController.procedure.doctor.doctorName}" />
 					</div>
 				</div>
 			</h:panelGroup>
 
 			<!-- Button Row 1: Prescription & Logs -->
 			<div class="button-row">
-				<div class="button-group">
-					<h:commandButton value="Add Prescription"
-						action="#{procedureController.createNewPrescription()}"
-						styleClass="action-button first-row" />
-				</div>
+				<h:panelGroup
+					rendered="#{not procedureController.firstLongterm or empty procedureController.prescriptions}">
+					<div class="button-group">
+						<h:commandButton value="Add Prescription"
+							action="#{procedureController.createNewPrescription()}"
+							styleClass="action-button first-row" />
+					</div>
+				</h:panelGroup>
 				<div class="button-group">
 					<h:commandButton value="Review Prescriptions"
 						action="#{procedureController.loadViewPrescriptions()}"
 						styleClass="action-button first-row" />
 				</div>
+				<h:panelGroup
+					rendered="#{not procedureController.firstLongterm or empty procedureController.prescriptions}">
 				<div class="button-group">
 					<h:commandButton value="Add Procedure Logs"
 						action="#{procedureController.createNewProcedureLog()}"
 						styleClass="action-button first-row" />
 				</div>
+				</h:panelGroup>
 				<div class="button-group">
 					<h:commandButton value="Review Logs"
 						action="#{procedureController.loadViewLogs()}"
@@ -189,7 +198,8 @@ body {
 
 			<!-- Button Row 2: Edit & Submit Procedure -->
 			<div class="button-row" style="justify-content: center;">
-				<h:panelGroup layout="block" rendered="#{procedureController.isFlag() ne false}">
+				<h:panelGroup layout="block"
+					rendered="#{procedureController.isFlag() ne false}">
 					<div class="button-group">
 						<h:commandButton value="Edit Procedure"
 							action="#{procedureController.gotoProcedureForm()}"
@@ -198,22 +208,23 @@ body {
 				</h:panelGroup>
 
 				<div class="button-group">
-					<h:commandButton value="Submit Procedure"
-						id="submit" action="#{procedureController.procedureSubmit()}"
+					<h:commandButton value="Submit Procedure" id="submit"
+						action="#{procedureController.procedureSubmit()}"
 						styleClass="action-button second-row" />
-						<h:message for="submit" styleClass="error-message" />
+					<h:message for="submit" styleClass="error-message" />
 				</div>
-				<h:panelGroup layout="block" rendered="#{procedureController.isFirstLongterm() ne true}">
-				<div class="button-group">
-					<h:commandButton value="back"
-						id="back" action="#{procedureController.backFromProcedure()}"
-						styleClass="action-button second-row" />
+				<h:panelGroup layout="block"
+					rendered="#{procedureController.isFirstLongterm() ne true}">
+					<div class="button-group">
+						<h:commandButton value="back" id="back"
+							action="#{procedureController.backFromProcedure()}"
+							styleClass="action-button second-row" />
 						<h:message for="back" styleClass="error-message" />
-				</div>
+					</div>
 				</h:panelGroup>
 			</div>
 		</h:form>
 	</div>
 </body>
-</html>
+	</html>
 </f:view>

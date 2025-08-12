@@ -3,18 +3,18 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <f:view>
-<html>
+	<html>
 <head>
-	<meta charset="UTF-8">
-	<title>Procedure Navigation Panel</title>
-	<link rel="stylesheet" href="css/healthsure-style.css" />
-	<style>
-	
+<meta charset="UTF-8">
+<title>Procedure Navigation Panel</title>
+<link rel="stylesheet" href="css/healthsure-style.css" />
+<style>
 .error-message {
 	margin-top: 5px;
 	color: red;
 	font-size: 12px;
 }
+
 body {
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	background-color: #f2f7fb;
@@ -110,7 +110,7 @@ body {
 	outline: 2px solid #31b0d5;
 	outline-offset: 2px;
 }
-	</style>
+</style>
 </head>
 <body>
 	<jsp:include page="/navbar/NavProvider.jsp" />
@@ -125,7 +125,8 @@ body {
 				<div class="summary-section">
 					<div class="summary-item">
 						<strong>Recipient Name:</strong>
-						<h:outputText value="#{procedureController.procedure.recipient.firstName}" />
+						<h:outputText
+							value="#{procedureController.procedure.recipient.firstName}" />
 					</div>
 					<div class="summary-item">
 						<strong>Diagnosis:</strong>
@@ -133,25 +134,32 @@ body {
 					</div>
 					<div class="summary-item">
 						<strong>Procedure Date:</strong>
-						<h:outputText value="#{procedureController.procedure.procedureDate}">
+						<h:outputText
+							value="#{procedureController.procedure.procedureDate}">
 							<f:convertDateTime pattern="dd MMM yyyy" />
 						</h:outputText>
 					</div>
 					<div class="summary-item">
 						<strong>Procedure Doctor:</strong>
-						<h:outputText value="#{procedureController.procedure.doctor.doctorName}" />
+						<h:outputText
+							value="#{procedureController.procedure.doctor.doctorName}" />
 					</div>
 				</div>
 			</h:panelGroup>
 
 			<!-- 🔵 Button Row 1: Add & Review -->
 			<div class="button-row">
-				<div class="button-group">
-					<h:commandButton value="Add Prescription"
-						action="#{procedureController.createNewPrescription()}"
-						styleClass="action-button first-row" />
-				</div>
-				<h:panelGroup rendered="#{not empty procedureController.prescriptions}">
+				<h:panelGroup
+					rendered="#{procedureController.prescriptions == null or empty procedureController.prescriptions}">
+					<div class="button-group">
+						<h:commandButton value="Add Prescription"
+							action="#{procedureController.createNewPrescription()}"
+							styleClass="action-button first-row" />
+					</div>
+				</h:panelGroup>
+			
+				<h:panelGroup
+					rendered="#{not empty procedureController.prescriptions}">
 					<div class="button-group">
 						<h:commandButton value="Review Prescriptions"
 							action="#{procedureController.loadViewPrescriptions()}"
@@ -163,12 +171,13 @@ body {
 			<!-- 🟢 Button Row 2: Submit & Edit -->
 			<div class="button-row">
 				<div class="button-group">
-					<h:commandButton value="Submit Procedure"
-						id="submit" action="#{procedureController.procedureSubmit()}"
+					<h:commandButton value="Submit Procedure" id="submit"
+						action="#{procedureController.procedureSubmit()}"
 						styleClass="action-button second-row" />
-						<h:message for="submit" styleClass="error-message" />
+					<h:message for="submit" styleClass="error-message" />
 				</div>
-				<h:panelGroup layout="block" rendered="#{procedureController.isFlag() ne false}">
+				<h:panelGroup layout="block"
+					rendered="#{procedureController.isFlag() ne false}">
 					<div class="button-group">
 						<h:commandButton value="Edit Procedure"
 							action="#{procedureController.gotoProcedureForm()}"
@@ -180,5 +189,5 @@ body {
 		</h:form>
 	</div>
 </body>
-</html>
+	</html>
 </f:view>

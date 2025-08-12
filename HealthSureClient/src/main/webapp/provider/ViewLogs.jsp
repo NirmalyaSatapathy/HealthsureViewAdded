@@ -283,7 +283,7 @@ input.action-button.secondary:disabled, input.action-button.secondary[disabled]
 			<div class="button-row">
 
 				<h:commandButton value="Back" styleClass="action-button secondary"
-					action="LongTermProcedureDashboard?faces-redirect=true" />
+					action="#{procedureController.backFromViewLogs()}" />
 			</div>
 			<h:panelGroup rendered="#{procedureController.showAll}">
 				<h:outputText
