@@ -83,7 +83,7 @@
 							rendered="#{procedureController.procedure.type ne 'SINGLE_DAY'}"
 							styleClass="form-group full-width">
 							<div class="form-group">
-								<label for="prescribedBy">Prescribed BY</label>
+								<label for="prescribedBy"><span style="color:red">*</span>Prescribed BY</label>
 								<h:inputText id="prescribedBy"
 									value="#{procedureController.prescription.prescribedDoc.doctorId}"
 									styleClass="form-control" readonly="true" />
@@ -97,8 +97,8 @@
 						<h:panelGroup
 							rendered="#{procedureController.procedure.type ne 'SINGLE_DAY'}"
 							styleClass="form-group full-width">
-							<label for="writtenOn">Written On <span
-								style="color: red">*</span></label>
+							<label for="writtenOn"><span
+								style="color: red">*</span>Written On</label>
 							<h:inputText id="writtenOn"
 								value="#{procedureController.prescription.writtenOn}"
 								styleClass="form-control" readonly="true">
@@ -113,8 +113,8 @@
 						</h:panelGroup>
 
 						<div class="form-group full-width">
-							<label for="startDate">Start Date <span
-								style="color: red">*</span></label>
+							<label for="startDate"><span
+								style="color: red">*</span>Start Date</label>
 							<h:inputText id="startDate"
 								value="#{procedureController.prescription.startDate}"
 								styleClass="form-control">
@@ -129,7 +129,7 @@
 						</div>
 
 						<div class="form-group full-width">
-							<label for="endDate">End Date <span style="color: red">*</span></label>
+							<label for="endDate"><span style="color: red">*</span>End Date</label>
 							<h:inputText id="endDate"
 								value="#{procedureController.prescription.endDate}"
 								styleClass="form-control">

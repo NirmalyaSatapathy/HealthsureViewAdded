@@ -44,12 +44,12 @@
                         <h:inputText id="logId" value="#{procedureController.procedureLog.logId}" readonly="true" styleClass="form-control" />
                     </div>
 					<div class="form-group">
-                        <h:outputLabel for="loggedBy" value="Logged By:" />
+                        <h:outputLabel for="loggedBy"> <span style="color: red">*</span>Logged by</h:outputLabel>
                         <h:inputText id="loggedBy" value="#{procedureController.procedureLog.loggedDoctor.doctorId}" styleClass="form-control" />
                     <h:message for="loggedBy" styleClass="error-message" />
                     </div>
                     <div class="form-group full-width">
-                        <h:outputLabel for="logDate">Log Date <span style="color:red">*</span></h:outputLabel>
+                        <h:outputLabel for="logDate"><span style="color:red">*</span>Log Date</h:outputLabel>
                         <h:inputText id="logDate" value="#{procedureController.procedureLog.logDate}" styleClass="form-control">
                             <f:convertDateTime pattern="yyyy-MM-dd" />
                         </h:inputText>
@@ -67,7 +67,7 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <h:outputLabel for="notes">Notes <span style="color:red">*</span></h:outputLabel>
+                        <h:outputLabel for="notes">Notes</h:outputLabel>
                         <h:inputTextarea id="notes" value="#{procedureController.procedureLog.notes}" rows="4" styleClass="form-control" />
                         <h:message for="notes" styleClass="error-message" />
                     </div>

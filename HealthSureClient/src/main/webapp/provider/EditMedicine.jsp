@@ -224,7 +224,7 @@ label {
 
 							<div class="auth-button-row">
 								<h:commandButton value="Authenticate"
-									action="#{procedureController.authenticatePrescriptionDoctor(procedureController.doctorId)}"
+									action="#{procedureController.authenticatePrescriptionDoctor(procedureController.authDoctorId)}"
 									styleClass="btn-small btn-authenticate" />
 
 								<h:commandButton value="Back"
@@ -252,8 +252,7 @@ label {
 							</div>
 
 							<div class="form-group">
-								<label for="medicineName">Medicine Name <span
-									style="color: red">*</span></label>
+								<label for="medicineName">Medicine Name</label>
 								<h:inputText id="medicineName"
 									value="#{procedureController.prescribedMedicine.medicineName}"
 									styleClass="form-control" readonly="true" />
@@ -261,7 +260,7 @@ label {
 							</div>
 
 							<div class="form-group">
-								<label for="type">Medicine Type <span style="color: red">*</span></label>
+								<label for="type">Medicine Type</label>
 
 								<h:outputText
 									value="#{procedureController.prescribedMedicine.type}"
@@ -273,7 +272,7 @@ label {
 							</div>
 
 							<div class="form-group">
-								<label for="dosage">Dosage <span style="color: red">*</span></label>
+								<label for="dosage"><span style="color: red">*</span>Dosage </label>
 								<h:inputText id="dosage"
 									value="#{procedureController.prescribedMedicine.dosage}"
 									styleClass="form-control" />
@@ -281,8 +280,8 @@ label {
 							</div>
 
 							<div class="form-group">
-								<label for="duration">Duration (days) <span
-									style="color: red">*</span></label>
+								<label for="duration"><span
+									style="color: red">*</span>Duration (days) </label>
 								<h:inputText id="duration"
 									value="#{procedureController.prescribedMedicine.duration}"
 									styleClass="form-control" />
@@ -290,8 +289,8 @@ label {
 							</div>
 
 							<div class="form-group">
-								<label for="startDate">Start Date <span
-									style="color: red">*</span></label>
+								<label for="startDate"><span
+									style="color: red">*</span>Start Date </label>
 								<h:inputText id="startDate"
 									value="#{procedureController.prescribedMedicine.startDate}"
 									styleClass="form-control">

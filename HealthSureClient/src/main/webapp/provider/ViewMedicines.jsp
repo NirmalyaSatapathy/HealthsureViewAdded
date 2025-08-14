@@ -281,20 +281,20 @@
                     <h:column>
                         <f:facet name="header">
                             <h:panelGroup layout="block" style="display: flex; align-items: center;">
-                                <h:outputText value="Prescription ID" />
+                                <h:outputText value="Medicine ID" />
                                 <h:panelGroup styleClass="sort-icons">
                                     <h:commandLink
-                                        action="#{procedureController.sortByAsc('medicines','prescriptionId')}"
-                                        rendered="#{!(procedureController.sortField eq 'prescriptionId' and procedureController.isAscending())}"
+                                        action="#{procedureController.sortByAsc('medicines','prescribedId')}"
+                                        rendered="#{!(procedureController.sortField eq 'prescribedId' and procedureController.isAscending())}"
                                         styleClass="sort-icon">▲</h:commandLink>
                                     <h:commandLink
-                                        action="#{procedureController.sortByDesc('medicines','prescriptionId')}"
-                                        rendered="#{!(procedureController.sortField eq 'prescriptionId' and not procedureController.isAscending())}"
+                                        action="#{procedureController.sortByDesc('medicines','prescribedId')}"
+                                        rendered="#{!(procedureController.sortField eq 'prescribedId' and not procedureController.isAscending())}"
                                         styleClass="sort-icon">▼</h:commandLink>
                                 </h:panelGroup>
                             </h:panelGroup>
                         </f:facet>
-                        <h:outputText value="#{m.prescription.prescriptionId}" />
+                        <h:outputText value="#{m.prescribedId}" />
                     </h:column>
 
                     <h:column>

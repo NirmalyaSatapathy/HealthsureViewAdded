@@ -62,7 +62,6 @@ body {
 .message-container {
 	margin-bottom: 1rem;
 	text-align: center;
-	
 }
 
 .message-container li {
@@ -335,6 +334,27 @@ input.action-button.secondary:disabled, input.action-button.secondary[disabled]
 						<f:facet name="header">
 							<h:panelGroup layout="block"
 								style="display: flex; align-items: center;">
+								<h:outputText value="Written on" />
+								<h:panelGroup styleClass="sort-icons">
+									<h:commandLink
+										action="#{procedureController.sortByAsc('prescriptions','writtenOn')}"
+										rendered="#{!(procedureController.sortField eq 'writtenOn' and procedureController.isAscending())}"
+										styleClass="sort-icon">▲</h:commandLink>
+									<h:commandLink
+										action="#{procedureController.sortByDesc('prescriptions','writtenOn')}"
+										rendered="#{!(procedureController.sortField eq 'writtenOn' and not procedureController.isAscending())}"
+										styleClass="sort-icon">▼</h:commandLink>
+								</h:panelGroup>
+							</h:panelGroup>
+						</f:facet>
+						<h:outputText value="#{p.writtenOn}">
+							<f:convertDateTime pattern="yyyy-MM-dd" />
+						</h:outputText>
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+							<h:panelGroup layout="block"
+								style="display: flex; align-items: center;">
 								<h:outputText value="Start Date" />
 								<h:panelGroup styleClass="sort-icons">
 									<h:commandLink
@@ -487,6 +507,28 @@ input.action-button.secondary:disabled, input.action-button.secondary[disabled]
 						<f:facet name="header">
 							<h:panelGroup layout="block"
 								style="display: flex; align-items: center;">
+								<h:outputText value="Written on" />
+								<h:panelGroup styleClass="sort-icons">
+									<h:commandLink
+										action="#{procedureController.sortByAsc('currentPrescriptions','writtenOn')}"
+										rendered="#{!(procedureController.sortField eq 'writtenOn' and procedureController.isAscending())}"
+										styleClass="sort-icon">▲</h:commandLink>
+									<h:commandLink
+										action="#{procedureController.sortByDesc('currentPrescriptions','writtenOn')}"
+										rendered="#{!(procedureController.sortField eq 'writtenOn' and not procedureController.isAscending())}"
+										styleClass="sort-icon">▼</h:commandLink>
+								</h:panelGroup>
+							</h:panelGroup>
+						</f:facet>
+						<h:outputText value="#{p.writtenOn}">
+							<f:convertDateTime pattern="yyyy-MM-dd" />
+						</h:outputText>
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">
+							<h:panelGroup layout="block"
+								style="display: flex; align-items: center;">
 								<h:outputText value="Start Date" />
 								<h:panelGroup styleClass="sort-icons">
 									<h:commandLink
@@ -632,6 +674,28 @@ input.action-button.secondary:disabled, input.action-button.secondary[disabled]
 							</h:panelGroup>
 						</f:facet>
 						<h:outputText value="#{p.prescribedDoc.doctorName}" />
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">
+							<h:panelGroup layout="block"
+								style="display: flex; align-items: center;">
+								<h:outputText value="Written on" />
+								<h:panelGroup styleClass="sort-icons">
+									<h:commandLink
+										action="#{procedureController.sortByAsc('previousPrescriptions','writtenOn')}"
+										rendered="#{!(procedureController.sortField eq 'writtenOn' and procedureController.isAscending())}"
+										styleClass="sort-icon">▲</h:commandLink>
+									<h:commandLink
+										action="#{procedureController.sortByDesc('previousPrescriptions','writtenOn')}"
+										rendered="#{!(procedureController.sortField eq 'writtenOn' and not procedureController.isAscending())}"
+										styleClass="sort-icon">▼</h:commandLink>
+								</h:panelGroup>
+							</h:panelGroup>
+						</f:facet>
+						<h:outputText value="#{p.writtenOn}">
+							<f:convertDateTime pattern="yyyy-MM-dd" />
+						</h:outputText>
 					</h:column>
 
 					<h:column>

@@ -262,20 +262,20 @@
                     <h:column>
                         <f:facet name="header">
                             <h:panelGroup layout="block" style="display: flex; align-items: center;">
-                                <h:outputText value="Prescription ID" />
+                                <h:outputText value="Test ID" />
                                 <h:panelGroup styleClass="sort-icons">
                                     <h:commandLink
-                                        action="#{procedureController.sortByAsc('tests','prescriptionId')}"
-                                        rendered="#{!(procedureController.sortField eq 'prescriptionId' and procedureController.isAscending())}"
+                                        action="#{procedureController.sortByAsc('tests','testId')}"
+                                        rendered="#{!(procedureController.sortField eq 'testId' and procedureController.isAscending())}"
                                         styleClass="sort-icon">▲</h:commandLink>
                                     <h:commandLink
-                                        action="#{procedureController.sortByDesc('tests','prescriptionId')}"
-                                        rendered="#{!(procedureController.sortField eq 'prescriptionId' and not procedureController.isAscending())}"
+                                        action="#{procedureController.sortByDesc('tests','testId')}"
+                                        rendered="#{!(procedureController.sortField eq 'testId' and not procedureController.isAscending())}"
                                         styleClass="sort-icon">▼</h:commandLink>
                                 </h:panelGroup>
                             </h:panelGroup>
                         </f:facet>
-                        <h:outputText value="#{t.prescription.prescriptionId}" />
+                        <h:outputText value="#{t.testId}" />
                     </h:column>
 
                     <h:column>

@@ -1257,7 +1257,7 @@ public class ProcedureController {
 		}
 		if ("previousPrescriptions".equals(listType)) {
 			previousPrescriptionFirst = 0;
-			sortPreviousLogsList();
+			sortPreviousPrescriptionList();
 		}
 		if ("currentLogs".equals(listType)) {
 			currentLogsFirst = 0;
@@ -1349,37 +1349,75 @@ public class ProcedureController {
 
 		Collections.sort(viewLogs, (l1, l2) -> {
 			try {
-				Field f = l1.getClass().getDeclaredField(sortField);
-				f.setAccessible(true);
-				Object v1 = f.get(l1);
-				Object v2 = f.get(l2);
+				// 1) use your existing getter or reflection to fetch v1/v2
+				Field f1 = findField(l1.getClass(), sortField);
+				Field f2 = findField(l2.getClass(), sortField);
+				f1.setAccessible(true);
+				f2.setAccessible(true);
+				Object v1 = f1.get(l1);
+				Object v2 = f2.get(l2);
 
-				if (v1 == null || v2 == null)
-					return 0;
-
-				// Special handling for vitals field
+				// 2) VITALS branch with in-branch null handling
 				if ("vitals".equals(sortField)) {
-					// Extract numeric values from vitals strings if possible
+					// push nulls to end (or to front if descending)
+					if (v1 == null && v2 == null)
+						return 0;
+					if (v1 == null)
+						return ascending ? 1 : -1;
+					if (v2 == null)
+						return ascending ? -1 : 1;
+
 					Double num1 = extractNumericFromVitals(v1.toString());
 					Double num2 = extractNumericFromVitals(v2.toString());
-
-					// If both contain numbers, compare numerically
 					if (num1 != null && num2 != null) {
 						return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
 					}
-					// Otherwise fall back to string comparison
+					// fallback to lexicographic
 					return ascending ? v1.toString().compareTo(v2.toString()) : v2.toString().compareTo(v1.toString());
-				} else if (v1 instanceof Date && v2 instanceof Date) {
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				} else if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				} else {
-					return 0;
 				}
+
+				// 3) DATE branch
+				if (v1 instanceof Date || v2 instanceof Date) {
+					// also handle nulls here
+					if (v1 == null && v2 == null)
+						return 0;
+					if (v1 == null)
+						return ascending ? 1 : -1;
+					if (v2 == null)
+						return ascending ? -1 : 1;
+					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
+				}
+
+				// 4) GENERIC Comparable branch
+				if (v1 == null && v2 == null)
+					return 0;
+				if (v1 == null)
+					return ascending ? 1 : -1;
+				if (v2 == null)
+					return ascending ? -1 : 1;
+				if (v1 instanceof Comparable && v2 instanceof Comparable) {
+					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
+				}
+				return 0;
+
 			} catch (Exception e) {
+				System.out.println("exception occured for " + sortField);
+				e.printStackTrace();
 				return 0;
 			}
 		});
+	}
+
+	// helper to walk up the class hierarchy
+	private Field findField(Class<?> cls, String name) {
+		while (cls != null) {
+			try {
+				return cls.getDeclaredField(name);
+			} catch (NoSuchFieldException e) {
+				cls = cls.getSuperclass();
+			}
+		}
+		return null;
 	}
 
 	private void sortPreviousLogsList() {
@@ -1388,34 +1426,59 @@ public class ProcedureController {
 
 		Collections.sort(previousLogs, (l1, l2) -> {
 			try {
-				Field f = l1.getClass().getDeclaredField(sortField);
-				f.setAccessible(true);
-				Object v1 = f.get(l1);
-				Object v2 = f.get(l2);
+				// 1) use your existing getter or reflection to fetch v1/v2
+				Field f1 = findField(l1.getClass(), sortField);
+				Field f2 = findField(l2.getClass(), sortField);
+				f1.setAccessible(true);
+				f2.setAccessible(true);
+				Object v1 = f1.get(l1);
+				Object v2 = f2.get(l2);
 
-				if (v1 == null || v2 == null)
-					return 0;
-
-				// Special handling for vitals field
+				// 2) VITALS branch with in-branch null handling
 				if ("vitals".equals(sortField)) {
-					// Extract numeric values from vitals strings if possible
+					// push nulls to end (or to front if descending)
+					if (v1 == null && v2 == null)
+						return 0;
+					if (v1 == null)
+						return ascending ? 1 : -1;
+					if (v2 == null)
+						return ascending ? -1 : 1;
+
 					Double num1 = extractNumericFromVitals(v1.toString());
 					Double num2 = extractNumericFromVitals(v2.toString());
-
-					// If both contain numbers, compare numerically
 					if (num1 != null && num2 != null) {
 						return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
 					}
-					// Otherwise fall back to string comparison
+					// fallback to lexicographic
 					return ascending ? v1.toString().compareTo(v2.toString()) : v2.toString().compareTo(v1.toString());
-				} else if (v1 instanceof Date && v2 instanceof Date) {
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				} else if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				} else {
-					return 0;
 				}
+
+				// 3) DATE branch
+				if (v1 instanceof Date || v2 instanceof Date) {
+					// also handle nulls here
+					if (v1 == null && v2 == null)
+						return 0;
+					if (v1 == null)
+						return ascending ? 1 : -1;
+					if (v2 == null)
+						return ascending ? -1 : 1;
+					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
+				}
+
+				// 4) GENERIC Comparable branch
+				if (v1 == null && v2 == null)
+					return 0;
+				if (v1 == null)
+					return ascending ? 1 : -1;
+				if (v2 == null)
+					return ascending ? -1 : 1;
+				if (v1 instanceof Comparable && v2 instanceof Comparable) {
+					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
+				}
+				return 0;
+
 			} catch (Exception e) {
+				e.printStackTrace();
 				return 0;
 			}
 		});
@@ -1427,34 +1490,59 @@ public class ProcedureController {
 
 		Collections.sort(procedureLogs, (l1, l2) -> {
 			try {
-				Field f = l1.getClass().getDeclaredField(sortField);
-				f.setAccessible(true);
-				Object v1 = f.get(l1);
-				Object v2 = f.get(l2);
+				// 1) use your existing getter or reflection to fetch v1/v2
+				Field f1 = findField(l1.getClass(), sortField);
+				Field f2 = findField(l2.getClass(), sortField);
+				f1.setAccessible(true);
+				f2.setAccessible(true);
+				Object v1 = f1.get(l1);
+				Object v2 = f2.get(l2);
 
-				if (v1 == null || v2 == null)
-					return 0;
-
-				// Special handling for vitals field
+				// 2) VITALS branch with in-branch null handling
 				if ("vitals".equals(sortField)) {
-					// Extract numeric values from vitals strings if possible
+					// push nulls to end (or to front if descending)
+					if (v1 == null && v2 == null)
+						return 0;
+					if (v1 == null)
+						return ascending ? 1 : -1;
+					if (v2 == null)
+						return ascending ? -1 : 1;
+
 					Double num1 = extractNumericFromVitals(v1.toString());
 					Double num2 = extractNumericFromVitals(v2.toString());
-
-					// If both contain numbers, compare numerically
 					if (num1 != null && num2 != null) {
 						return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
 					}
-					// Otherwise fall back to string comparison
+					// fallback to lexicographic
 					return ascending ? v1.toString().compareTo(v2.toString()) : v2.toString().compareTo(v1.toString());
-				} else if (v1 instanceof Date && v2 instanceof Date) {
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				} else if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				} else {
-					return 0;
 				}
+
+				// 3) DATE branch
+				if (v1 instanceof Date || v2 instanceof Date) {
+					// also handle nulls here
+					if (v1 == null && v2 == null)
+						return 0;
+					if (v1 == null)
+						return ascending ? 1 : -1;
+					if (v2 == null)
+						return ascending ? -1 : 1;
+					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
+				}
+
+				// 4) GENERIC Comparable branch
+				if (v1 == null && v2 == null)
+					return 0;
+				if (v1 == null)
+					return ascending ? 1 : -1;
+				if (v2 == null)
+					return ascending ? -1 : 1;
+				if (v1 instanceof Comparable && v2 instanceof Comparable) {
+					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
+				}
+				return 0;
+
 			} catch (Exception e) {
+				e.printStackTrace();
 				return 0;
 			}
 		});
@@ -1462,17 +1550,16 @@ public class ProcedureController {
 
 	// Helper method to extract numeric values from vitals strings
 	private Double extractNumericFromVitals(String vitals) {
-		if (vitals == null || vitals.isEmpty()) {
+		if (vitals == null || vitals.isEmpty())
 			return null;
-		}
 
-		// Try to find the first numeric sequence in the string
-		java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\\d+\\.?\\d*").matcher(vitals);
+		// Match numbers like 98.6, 140, 90, etc.
+		java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+\\.?\\d*)").matcher(vitals);
 		if (matcher.find()) {
 			try {
-				return Double.parseDouble(matcher.group());
+				return Double.parseDouble(matcher.group(1));
 			} catch (NumberFormatException e) {
-				return null;
+				// Log or ignore
 			}
 		}
 		return null;
@@ -1762,6 +1849,15 @@ public class ProcedureController {
 			context.validationFailed();
 			isValid = false;
 		}
+		String diag = medicalProcedure.getDiagnosis().trim();
+		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9 .,\\-/():;'\\+%\\-]+$";
+
+		if (!diag.matches(diagPattern)) {
+			context.addMessage("diagnosis", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Diagnosis",
+					"Must be ≥2 chars, include at least one letter,allowed special characters are . , - / ( ) : ; ' + %"));
+			context.validationFailed();
+			isValid = false;
+		}
 
 		Date procedureDate = medicalProcedure.getProcedureDate();
 		Date today = new Date();
@@ -1939,7 +2035,15 @@ public class ProcedureController {
 			context.validationFailed();
 			isValid = false;
 		}
+		String diag = medicalProcedure.getDiagnosis().trim();
+		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9 .,\\-/():;'\\+%\\-]+$";
 
+		if (!diag.matches(diagPattern)) {
+			context.addMessage("diagnosis", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Diagnosis",
+					"Must be ≥2 chars, include at least one letter,allowed special characters are . , - / ( ) : ; ' + %"));
+			context.validationFailed();
+			isValid = false;
+		}
 		if (!isValid)
 			return null;
 		medicalProcedure.setRecipient(recipient);
@@ -2116,13 +2220,10 @@ public class ProcedureController {
 		if (!isValid)
 			return null;
 
-		// 2. Format & Validate Medicine Name
-		medicineName = medicineName.trim().replaceAll("\\s+", " ");
-		prescribedMedicine.setMedicineName(medicineName);
-
-		if (!medicineName.matches("^[a-zA-Z0-9()\\-+/'. ]{2,50}$")) {
+		// 2. Format and Validate Medicine Name
+		if (!medicineName.matches("^(?=(?:.*[a-zA-Z]){2,})[a-zA-Z0-9()\\-+/'. ]{2,50}$")) {
 			context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Medicine name must be 2–50 characters and can include letters, digits, -, /, +, (), '.', and spaces.",
+					"Medicine name must be 2–50 characters, contain at least two letters, and can include digits, -, /, +, (), '.', and spaces.",
 					null));
 			context.validationFailed();
 			isValid = false;
@@ -2281,8 +2382,8 @@ public class ProcedureController {
 		prescription.setProvider(procedure.getProvider());
 		prescription.setDoctor(procedure.getDoctor());
 		prescription.setRecipient(procedure.getRecipient());
-		
-//these fields are for the prescriptions under existing long term procedures
+
+//these fields are for the prescriptions under existing long term procedures(only the required fields validations)
 		if (procedure.getType() != ProcedureType.SINGLE_DAY && !firstLongterm) {
 			if (prescription.getWrittenOn() == null) {
 				context.addMessage("writtenOn", new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -2296,7 +2397,7 @@ public class ProcedureController {
 				context.addMessage("prescribedBy",
 						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Please enter the Doctor who prescribed", null));
 				context.validationFailed();
-				isValid = false;    
+				isValid = false;
 			}
 
 			if (prescription.getPrescribedDoc().getDoctorId() != null
@@ -2373,9 +2474,10 @@ public class ProcedureController {
 				isValid = false;
 			}
 		}
-		
-		//these are for 1st prescription of a new long term procedure
-		if (procedureType == ProcedureType.LONG_TERM && procedureStatus == ProcedureStatus.IN_PROGRESS && firstLongterm) {
+
+		// these are for 1st prescription of a new long term procedure
+		if (procedureType == ProcedureType.LONG_TERM && procedureStatus == ProcedureStatus.IN_PROGRESS
+				&& firstLongterm) {
 			prescription.setWrittenOn(procedure.getFromDate());
 			prescription.getPrescribedDoc().setDoctorId(prescription.getDoctor().getDoctorId());
 			prescription.getPrescribedDoc().setDoctorName(prescription.getDoctor().getDoctorName());
@@ -2384,10 +2486,12 @@ public class ProcedureController {
 			Date truncatedProcedureDate = Converter.truncateTime(procedure.getFromDate());
 
 			if (truncatedStartDate.before(truncatedProcedureDate)) {
-				context.addMessage("startDate", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Prescription start date (" + formatDate(truncatedStartDate)
-								+ ") cannot be before the procedure start date (" + formatDate(truncatedProcedureDate) + ").",
-						null));
+				context.addMessage("startDate",
+						new FacesMessage(FacesMessage.SEVERITY_ERROR,
+								"Prescription start date (" + formatDate(truncatedStartDate)
+										+ ") cannot be before the procedure start date ("
+										+ formatDate(truncatedProcedureDate) + ").",
+								null));
 				context.validationFailed();
 				isValid = false;
 			}
@@ -2403,9 +2507,10 @@ public class ProcedureController {
 				isValid = false;
 			}
 		}
-		
-		//these are for prescriptions under existing long term
-		if (procedureType == ProcedureType.LONG_TERM && procedureStatus == ProcedureStatus.IN_PROGRESS && !firstLongterm) {
+
+		// these are for prescriptions under existing long term
+		if (procedureType == ProcedureType.LONG_TERM && procedureStatus == ProcedureStatus.IN_PROGRESS
+				&& !firstLongterm) {
 			Date writtenOn = Converter.truncateTime(prescription.getWrittenOn());
 
 			if (fromDate == null) {
@@ -2511,7 +2616,7 @@ public class ProcedureController {
 		}
 //start date & end date validation
 //(not required as start date cant be before written on date ,written on date already validated with existing prescription date ranges)
-		
+
 //		Date newStart = Converter.truncateTime(prescription.getStartDate());
 //		for (Prescription existing : viewPrescriptions) {
 //			Date existingStart = Converter.truncateTime(existing.getStartDate());
@@ -3199,7 +3304,7 @@ public class ProcedureController {
 		procedureTest = null;
 
 		procedureTests.clear();
-		
+
 		procedureLog = null;
 		doctorId = null;
 		procedureLogs.clear();
@@ -3501,7 +3606,7 @@ public class ProcedureController {
 		showCurrent = false;
 		showPrevious = false;
 		FacesContext context = FacesContext.getCurrentInstance();
-		if (viewLogs != null && !viewLogs.isEmpty()) {
+		if (procedureLogs != null && !procedureLogs.isEmpty()) {
 			this.viewLogs.addAll(procedureLogs);
 		}
 		this.viewLogs.addAll(providerEjb.fetchLogs(procedure.getProcedureId()));
@@ -3510,6 +3615,7 @@ public class ProcedureController {
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "No logs found for this procedure.", null));
 			return null;
 		}
+		System.out.println("total logs " + viewLogs.size());
 		return "ViewLogs?faces-redirect=true";
 	}
 
@@ -4126,6 +4232,16 @@ public class ProcedureController {
 			context.validationFailed();
 			isValid = false;
 		}
+		// Validate Diagnosis
+		String diag = p.getDiagnosis().trim();
+		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9 .,\\-/():;'\\+%\\-]+$";
+
+		if (!diag.matches(diagPattern)) {
+			context.addMessage("diagnosis", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Diagnosis",
+					"Must be ≥2 chars, include at least one letter,allowed special characters are . , - / ( ) : ; ' + %"));
+			context.validationFailed();
+			isValid = false;
+		}
 		if (!isValid)
 			return null;
 		this.tempProcedure = p;
@@ -4142,12 +4258,16 @@ public class ProcedureController {
 			context.validationFailed();
 			isValid = false;
 		}
+
 		if (!isValid)
 			return null;
 // Validate Diagnosis
-		if (p.getDiagnosis() == null || p.getDiagnosis().trim().length() < 2) {
+		String diag = p.getDiagnosis().trim();
+		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9 .,\\-/():;'\\+%\\-]+$";
+
+		if (!diag.matches(diagPattern)) {
 			context.addMessage("diagnosis", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Diagnosis",
-					"Diagnosis must contain at least 2 letters."));
+					"Must be ≥2 chars, include at least one letter,allowed special characters are . , - / ( ) : ; ' + %"));
 			context.validationFailed();
 			isValid = false;
 		}
@@ -4576,9 +4696,9 @@ public class ProcedureController {
 			return null;
 
 		// 2. Format and Validate Medicine Name
-		if (!medicineName.matches("^[a-zA-Z0-9()\\-+/'. ]{2,50}$")) {
+		if (!medicineName.matches("^(?=(?:.*[a-zA-Z]){2,})[a-zA-Z0-9()\\-+/'. ]{2,50}$")) {
 			context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Medicine name must be 2–50 characters and can include letters, digits, -, /, +, (), '.', and spaces.",
+					"Medicine name must be 2–50 characters, contain at least two letters, and can include digits, -, /, +, (), '.', and spaces.",
 					null));
 			context.validationFailed();
 			isValid = false;
@@ -4882,7 +5002,7 @@ public class ProcedureController {
 			return null;
 		}
 
-		if (!doctorId.trim().matches("^[Dd][Oo][Cc]\\d{3}$")) {
+		if (!authDoctorId.trim().matches("^[Dd][Oo][Cc]\\d{3}$")) {
 			FacesContext.getCurrentInstance().addMessage("doctorId",
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Correct doctor id format DOCXXX", null));
 			return null;

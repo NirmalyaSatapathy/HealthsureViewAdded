@@ -8,7 +8,8 @@
 <head>
 <meta charset="UTF-8" />
 <title>Patient Insurance Details</title>
-<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/showInsuranceDetails.css" />
+<link rel="stylesheet" type="text/css"
+	href="${pageContext.request.contextPath}/resources/css/showInsuranceDetails.css" />
 </head>
 
 <body>
@@ -17,9 +18,8 @@
 	<!-- Search Form -->
 	<h:form prependId="false">
 		<div class="form-group">
-			<label for="doctorId" escape="false"> Enter Doctor ID:<span
-				style="color: red;">*</span>
-			</label>
+			<label for="doctorId" escape="false"><span
+				style="color: red;">*</span>Enter Doctor ID: </label>
 			<h:inputText id="doctorId" value="#{insuranceController.doctorId}"
 				styleClass="form-control" />
 			<h:message for="doctorId" styleClass="error-message" />

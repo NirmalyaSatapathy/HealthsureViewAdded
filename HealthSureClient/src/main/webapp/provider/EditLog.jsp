@@ -233,7 +233,7 @@ label, h\:outputLabel {
 
 							<div class="auth-button-row">
 								<h:commandButton value="Authenticate"
-									action="#{procedureController.authenticateLogDoctor(procedureController.doctorId)}"
+									action="#{procedureController.authenticateLogDoctor(procedureController.authDoctorId)}"
 									styleClass="btn-small btn-authenticate" />
 
 								<h:commandButton value="Back"
@@ -266,8 +266,7 @@ label, h\:outputLabel {
 								<h:message for="loggedBy" styleClass="error-message" />
 							</div>
 							<div class="form-group full-width">
-								<h:outputLabel for="logDate">Log Date <span
-										style="color: red">*</span>
+								<h:outputLabel for="logDate">Log Date
 								</h:outputLabel>
 								<h:inputText id="logDate"
 									value="#{procedureController.procedureLog.logDate}"
@@ -291,8 +290,7 @@ label, h\:outputLabel {
 							</div>
 
 							<div class="form-group full-width">
-								<h:outputLabel for="notes">Notes <span
-										style="color: red">*</span>
+								<h:outputLabel for="notes">Notes
 								</h:outputLabel>
 								<h:inputTextarea id="notes"
 									value="#{procedureController.procedureLog.notes}" rows="4"

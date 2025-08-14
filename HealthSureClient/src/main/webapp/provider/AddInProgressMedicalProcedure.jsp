@@ -42,31 +42,31 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="appointmentId">Appointment ID <span style="color:red">*</span></label>
+                            <label for="appointmentId">Appointment ID</label>
                             <h:inputText id="appointmentId" value="#{procedureController.procedure.appointment.appointmentId}" readonly="true" styleClass="form-control" />
                             <h:message for="appointmentId" styleClass="error" />
                         </div>
 
                         <div class="form-group">
-                            <label for="recipientId">Patient (h_id) <span style="color:red">*</span></label>
+                            <label for="recipientId">Patient (h_id)</label>
                             <h:inputText id="recipientId" value="#{procedureController.procedure.recipient.hId}" readonly="true" styleClass="form-control" />
                             <h:message for="recipientId" styleClass="error" />
                         </div>
 
                         <div class="form-group">
-                            <label for="providerId">Provider ID <span style="color:red">*</span></label>
+                            <label for="providerId">Provider ID</label>
                             <h:inputText id="providerId" value="#{procedureController.procedure.provider.providerId}" readonly="true" styleClass="form-control" />
                             <h:message for="providerId" styleClass="error" />
                         </div>
 
                         <div class="form-group">
-                            <label for="doctorId">Doctor ID <span style="color:red">*</span></label>
+                            <label for="doctorId">Doctor ID</label>
                             <h:inputText id="doctorId" value="#{procedureController.procedure.doctor.doctorId}" readonly="true" styleClass="form-control" />
                             <h:message for="doctorId" styleClass="error" />
                         </div>
 
                         <div class="form-group">
-                            <label for="startDate">Start Date <span style="color:red">*</span></label>
+                            <label for="startDate"><span style="color:red">*</span>Start Date</label>
                             <h:inputText id="startDate" value="#{procedureController.procedure.fromDate}"  styleClass="form-control">
                                 <f:convertDateTime pattern="yyyy-MM-dd" />
                             </h:inputText>

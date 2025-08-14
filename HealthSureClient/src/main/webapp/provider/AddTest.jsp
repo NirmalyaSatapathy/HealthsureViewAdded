@@ -51,8 +51,8 @@
 					</div>
 
 					<div class="form-group">
-						<h:outputLabel for="testName">Test Name <span
-								style="color: red">*</span>
+						<h:outputLabel for="testName"><span
+								style="color: red">*</span>Test Name 
 						</h:outputLabel>
 						<h:inputText id="testName"
 							value="#{procedureController.procedureTest.testName}"
@@ -61,8 +61,8 @@
 					</div>
 
 					<div class="form-group">
-						<h:outputLabel for="testDate">Test Date (yyyy-MM-dd) <span
-								style="color: red">*</span>
+						<h:outputLabel for="testDate"><span
+								style="color: red">*</span>Test Date (yyyy-MM-dd) 
 						</h:outputLabel>
 						<h:inputText id="testDate"
 							value="#{procedureController.procedureTest.testDate}"
@@ -77,8 +77,8 @@
 					</div>
 
 					<div class="form-group">
-						<h:outputLabel for="resultSummary">Result Summary <span
-								style="color: red">*</span>
+						<h:outputLabel for="resultSummary"><span
+								style="color: red">*</span>Result Summary 
 						</h:outputLabel>
 						<h:inputTextarea id="resultSummary"
 							value="#{procedureController.procedureTest.resultSummary}"
