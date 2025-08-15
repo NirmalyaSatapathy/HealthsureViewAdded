@@ -28,6 +28,7 @@
         flex-grow: 1;
         padding: 10px;
         overflow-y: auto;
+        
         display: flex;
         justify-content: center;
         align-items: flex-start;

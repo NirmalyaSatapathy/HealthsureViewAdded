@@ -118,26 +118,7 @@
             </f:facet>
             <h:outputText value="#{member.relationWithProposer}" />
         </h:column>
- 
-        <!-- Aadhar No Column -->
-        <h:column>
-            <f:facet name="header">
-                <h:panelGroup layout="block" style="display: flex; align-items: center;">
-                    <h:outputText value="Aadhar No" />
-                    <h:panelGroup styleClass="sort-icons">
-                        <h:commandLink
-                            action="#{insuranceController.sortByAsc('members','aadharNo')}"
-                            rendered="#{!(insuranceController.sortField eq 'aadharNo' and insuranceController.isAscending())}"
-                            styleClass="sort-icon">▲</h:commandLink>
-                        <h:commandLink
-                            action="#{insuranceController.sortByDesc('members','aadharNo')}"
-                            rendered="#{!(insuranceController.sortField eq 'aadharNo' and not insuranceController.isAscending())}"
-                            styleClass="sort-icon">▼</h:commandLink>
-                    </h:panelGroup>
-                </h:panelGroup>
-            </f:facet>
-            <h:outputText value="#{member.aadharNo}" />
-        </h:column>
+       
     </h:dataTable>
  
     <!-- Pagination Controls -->

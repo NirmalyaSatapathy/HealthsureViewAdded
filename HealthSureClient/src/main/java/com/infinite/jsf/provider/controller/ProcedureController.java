@@ -1290,123 +1290,133 @@ public class ProcedureController {
 	}
 
 	private void sortPreviousPrescriptionList() {
-		if (previousPrescriptions == null || sortField == null)
-			return;
+	    if (previousPrescriptions == null || sortField == null)
+	        return;
 
-		Collections.sort(previousPrescriptions, (p1, p2) -> {
-			try {
-				Field f = p1.getClass().getDeclaredField(sortField);
-				f.setAccessible(true);
-				Object v1 = f.get(p1);
-				Object v2 = f.get(p2);
+	    Collections.sort(previousPrescriptions, (p1, p2) -> {
+	        try {
+	            Object v1 = getNestedFieldValue(p1, sortField);
+	            Object v2 = getNestedFieldValue(p2, sortField);
 
-				if (v1 == null || v2 == null)
-					return 0;
+	            if (v1 == null || v2 == null)
+	                return 0;
 
-				if (v1 instanceof Date && v2 instanceof Date) {
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				} else if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				} else {
-					return 0;
-				}
-			} catch (Exception e) {
-				return 0;
-			}
-		});
+	            if (v1 instanceof Date && v2 instanceof Date) {
+	                return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
+	            } else if (v1 instanceof Comparable && v2 instanceof Comparable) {
+	                return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
+	            } else {
+	                return 0;
+	            }
+	        } catch (Exception e) {
+	            return 0;
+	        }
+	    });
 	}
 
+	
 	private void sortCurrentPrescriptionList() {
-		if (prescriptions == null || sortField == null)
-			return;
+	    if (prescriptions == null || sortField == null)
+	        return;
 
-		Collections.sort(prescriptions, (p1, p2) -> {
-			try {
-				Field f = p1.getClass().getDeclaredField(sortField);
-				f.setAccessible(true);
-				Object v1 = f.get(p1);
-				Object v2 = f.get(p2);
+	    Collections.sort(prescriptions, (p1, p2) -> {
+	        try {
+	            Object v1 = getNestedFieldValue(p1, sortField);
+	            Object v2 = getNestedFieldValue(p2, sortField);
 
-				if (v1 == null || v2 == null)
-					return 0;
+	            if (v1 == null || v2 == null)
+	                return 0;
 
-				if (v1 instanceof Date && v2 instanceof Date) {
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				} else if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				} else {
-					return 0;
-				}
-			} catch (Exception e) {
-				return 0;
-			}
-		});
+	            if (v1 instanceof Date && v2 instanceof Date) {
+	                return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
+	            } else if (v1 instanceof Comparable && v2 instanceof Comparable) {
+	                return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
+	            } else {
+	                return 0;
+	            }
+	        } catch (Exception e) {
+	            return 0;
+	        }
+	    });
 	}
+
+	
+
 
 	private void sortLogList() {
-		if (viewLogs == null || sortField == null)
-			return;
+	    if (viewLogs == null || sortField == null) {
+	        return;
+	    }
 
-		Collections.sort(viewLogs, (l1, l2) -> {
-			try {
-				// 1) use your existing getter or reflection to fetch v1/v2
-				Field f1 = findField(l1.getClass(), sortField);
-				Field f2 = findField(l2.getClass(), sortField);
-				f1.setAccessible(true);
-				f2.setAccessible(true);
-				Object v1 = f1.get(l1);
-				Object v2 = f2.get(l2);
+	    Collections.sort(viewLogs, (l1, l2) -> {
+	        try {
+	            // 1) Get the values (supports nested fields via dot notation)
+	            Object v1 = getNestedFieldValue(l1, sortField);
+	            Object v2 = getNestedFieldValue(l2, sortField);
 
-				// 2) VITALS branch with in-branch null handling
-				if ("vitals".equals(sortField)) {
-					// push nulls to end (or to front if descending)
-					if (v1 == null && v2 == null)
-						return 0;
-					if (v1 == null)
-						return ascending ? 1 : -1;
-					if (v2 == null)
-						return ascending ? -1 : 1;
+	            // 2) Special handling for "vitals"
+	            if ("vitals".equals(sortField)) {
+	                if (v1 == null && v2 == null) return 0;
+	                if (v1 == null) return ascending ? 1 : -1;
+	                if (v2 == null) return ascending ? -1 : 1;
 
-					Double num1 = extractNumericFromVitals(v1.toString());
-					Double num2 = extractNumericFromVitals(v2.toString());
-					if (num1 != null && num2 != null) {
-						return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
-					}
-					// fallback to lexicographic
-					return ascending ? v1.toString().compareTo(v2.toString()) : v2.toString().compareTo(v1.toString());
-				}
+	                Double num1 = extractNumericFromVitals(v1.toString());
+	                Double num2 = extractNumericFromVitals(v2.toString());
+	                if (num1 != null && num2 != null) {
+	                    return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
+	                }
+	                return ascending ? v1.toString().compareTo(v2.toString()) 
+	                                 : v2.toString().compareTo(v1.toString());
+	            }
 
-				// 3) DATE branch
-				if (v1 instanceof Date || v2 instanceof Date) {
-					// also handle nulls here
-					if (v1 == null && v2 == null)
-						return 0;
-					if (v1 == null)
-						return ascending ? 1 : -1;
-					if (v2 == null)
-						return ascending ? -1 : 1;
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				}
+	            // 3) Date handling
+	            if (v1 instanceof Date || v2 instanceof Date) {
+	                if (v1 == null && v2 == null) return 0;
+	                if (v1 == null) return ascending ? 1 : -1;
+	                if (v2 == null) return ascending ? -1 : 1;
+	                return ascending ? ((Date) v1).compareTo((Date) v2)
+	                                 : ((Date) v2).compareTo((Date) v1);
+	            }
 
-				// 4) GENERIC Comparable branch
-				if (v1 == null && v2 == null)
-					return 0;
-				if (v1 == null)
-					return ascending ? 1 : -1;
-				if (v2 == null)
-					return ascending ? -1 : 1;
-				if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				}
-				return 0;
+	            // 4) Generic Comparable
+	            if (v1 == null && v2 == null) return 0;
+	            if (v1 == null) return ascending ? 1 : -1;
+	            if (v2 == null) return ascending ? -1 : 1;
+	            if (v1 instanceof Comparable && v2 instanceof Comparable) {
+	                return ascending ? ((Comparable) v1).compareTo(v2)
+	                                 : ((Comparable) v2).compareTo(v1);
+	            }
 
-			} catch (Exception e) {
-				System.out.println("exception occured for " + sortField);
-				e.printStackTrace();
-				return 0;
-			}
-		});
+	            return 0;
+
+	        } catch (Exception e) {
+	            System.out.println("Exception occurred for " + sortField);
+	            e.printStackTrace();
+	            return 0;
+	        }
+	    });
 	}
+
+	/**
+	 * Fetches a field value, supports nested fields using dot notation.
+	 */
+	private Object getNestedFieldValue(Object obj, String fieldPath) throws Exception {
+	    if (obj == null || fieldPath == null) {
+	        return null;
+	    }
+	    String[] fields = fieldPath.split("\\.");
+	    Object value = obj;  //1st iteration the main object,in iteration it becomes the subsequent values
+	    for (String fieldName : fields) {
+	        if (value == null) {
+	            return null;
+	        }
+	        Field field = value.getClass().getDeclaredField(fieldName);
+	        field.setAccessible(true);
+	        value = field.get(value);
+	    }
+	    return value;
+	}
+
 
 	// helper to walk up the class hierarchy
 	private Field findField(Class<?> cls, String name) {
@@ -1421,132 +1431,114 @@ public class ProcedureController {
 	}
 
 	private void sortPreviousLogsList() {
-		if (previousLogs == null || sortField == null)
-			return;
+	    if (previousLogs == null || sortField == null) {
+	        return;
+	    }
 
-		Collections.sort(previousLogs, (l1, l2) -> {
-			try {
-				// 1) use your existing getter or reflection to fetch v1/v2
-				Field f1 = findField(l1.getClass(), sortField);
-				Field f2 = findField(l2.getClass(), sortField);
-				f1.setAccessible(true);
-				f2.setAccessible(true);
-				Object v1 = f1.get(l1);
-				Object v2 = f2.get(l2);
+	    Collections.sort(previousLogs, (l1, l2) -> {
+	        try {
+	            // 1) Get the values (supports nested fields via dot notation)
+	            Object v1 = getNestedFieldValue(l1, sortField);
+	            Object v2 = getNestedFieldValue(l2, sortField);
 
-				// 2) VITALS branch with in-branch null handling
-				if ("vitals".equals(sortField)) {
-					// push nulls to end (or to front if descending)
-					if (v1 == null && v2 == null)
-						return 0;
-					if (v1 == null)
-						return ascending ? 1 : -1;
-					if (v2 == null)
-						return ascending ? -1 : 1;
+	            // 2) Special handling for "vitals"
+	            if ("vitals".equals(sortField)) {
+	                if (v1 == null && v2 == null) return 0;
+	                if (v1 == null) return ascending ? 1 : -1;
+	                if (v2 == null) return ascending ? -1 : 1;
 
-					Double num1 = extractNumericFromVitals(v1.toString());
-					Double num2 = extractNumericFromVitals(v2.toString());
-					if (num1 != null && num2 != null) {
-						return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
-					}
-					// fallback to lexicographic
-					return ascending ? v1.toString().compareTo(v2.toString()) : v2.toString().compareTo(v1.toString());
-				}
+	                Double num1 = extractNumericFromVitals(v1.toString());
+	                Double num2 = extractNumericFromVitals(v2.toString());
+	                if (num1 != null && num2 != null) {
+	                    return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
+	                }
+	                return ascending ? v1.toString().compareTo(v2.toString()) 
+	                                 : v2.toString().compareTo(v1.toString());
+	            }
 
-				// 3) DATE branch
-				if (v1 instanceof Date || v2 instanceof Date) {
-					// also handle nulls here
-					if (v1 == null && v2 == null)
-						return 0;
-					if (v1 == null)
-						return ascending ? 1 : -1;
-					if (v2 == null)
-						return ascending ? -1 : 1;
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				}
+	            // 3) Date handling
+	            if (v1 instanceof Date || v2 instanceof Date) {
+	                if (v1 == null && v2 == null) return 0;
+	                if (v1 == null) return ascending ? 1 : -1;
+	                if (v2 == null) return ascending ? -1 : 1;
+	                return ascending ? ((Date) v1).compareTo((Date) v2)
+	                                 : ((Date) v2).compareTo((Date) v1);
+	            }
 
-				// 4) GENERIC Comparable branch
-				if (v1 == null && v2 == null)
-					return 0;
-				if (v1 == null)
-					return ascending ? 1 : -1;
-				if (v2 == null)
-					return ascending ? -1 : 1;
-				if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				}
-				return 0;
+	            // 4) Generic Comparable
+	            if (v1 == null && v2 == null) return 0;
+	            if (v1 == null) return ascending ? 1 : -1;
+	            if (v2 == null) return ascending ? -1 : 1;
+	            if (v1 instanceof Comparable && v2 instanceof Comparable) {
+	                return ascending ? ((Comparable) v1).compareTo(v2)
+	                                 : ((Comparable) v2).compareTo(v1);
+	            }
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				return 0;
-			}
-		});
+	            return 0;
+
+	        } catch (Exception e) {
+	            System.out.println("Exception occurred for " + sortField);
+	            e.printStackTrace();
+	            return 0;
+	        }
+	    });
 	}
 
 	private void sortCurrentLogsList() {
-		if (procedureLogs == null || sortField == null)
-			return;
+	    if (procedureLogs == null || sortField == null) {
+	        return;
+	    }
 
-		Collections.sort(procedureLogs, (l1, l2) -> {
-			try {
-				// 1) use your existing getter or reflection to fetch v1/v2
-				Field f1 = findField(l1.getClass(), sortField);
-				Field f2 = findField(l2.getClass(), sortField);
-				f1.setAccessible(true);
-				f2.setAccessible(true);
-				Object v1 = f1.get(l1);
-				Object v2 = f2.get(l2);
+	    Collections.sort(procedureLogs, (l1, l2) -> {
+	        try {
+	            // 1) Get the values (supports nested fields via dot notation)
+	            Object v1 = getNestedFieldValue(l1, sortField);
+	            Object v2 = getNestedFieldValue(l2, sortField);
 
-				// 2) VITALS branch with in-branch null handling
-				if ("vitals".equals(sortField)) {
-					// push nulls to end (or to front if descending)
-					if (v1 == null && v2 == null)
-						return 0;
-					if (v1 == null)
-						return ascending ? 1 : -1;
-					if (v2 == null)
-						return ascending ? -1 : 1;
+	            // 2) Special handling for "vitals"
+	            if ("vitals".equals(sortField)) {
+	                if (v1 == null && v2 == null) return 0;
+	                if (v1 == null) return ascending ? 1 : -1;
+	                if (v2 == null) return ascending ? -1 : 1;
 
-					Double num1 = extractNumericFromVitals(v1.toString());
-					Double num2 = extractNumericFromVitals(v2.toString());
-					if (num1 != null && num2 != null) {
-						return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
-					}
-					// fallback to lexicographic
-					return ascending ? v1.toString().compareTo(v2.toString()) : v2.toString().compareTo(v1.toString());
-				}
+	                Double num1 = extractNumericFromVitals(v1.toString());
+	                Double num2 = extractNumericFromVitals(v2.toString());
+	                if (num1 != null && num2 != null) {
+	                    return ascending ? Double.compare(num1, num2) : Double.compare(num2, num1);
+	                }
+	                return ascending ? v1.toString().compareTo(v2.toString())
+	                                 : v2.toString().compareTo(v1.toString());
+	            }
 
-				// 3) DATE branch
-				if (v1 instanceof Date || v2 instanceof Date) {
-					// also handle nulls here
-					if (v1 == null && v2 == null)
-						return 0;
-					if (v1 == null)
-						return ascending ? 1 : -1;
-					if (v2 == null)
-						return ascending ? -1 : 1;
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				}
+	            // 3) Date handling
+	            if (v1 instanceof Date || v2 instanceof Date) {
+	                if (v1 == null && v2 == null) return 0;
+	                if (v1 == null) return ascending ? 1 : -1;
+	                if (v2 == null) return ascending ? -1 : 1;
+	                return ascending ? ((Date) v1).compareTo((Date) v2)
+	                                 : ((Date) v2).compareTo((Date) v1);
+	            }
 
-				// 4) GENERIC Comparable branch
-				if (v1 == null && v2 == null)
-					return 0;
-				if (v1 == null)
-					return ascending ? 1 : -1;
-				if (v2 == null)
-					return ascending ? -1 : 1;
-				if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				}
-				return 0;
+	            // 4) Generic Comparable
+	            if (v1 == null && v2 == null) return 0;
+	            if (v1 == null) return ascending ? 1 : -1;
+	            if (v2 == null) return ascending ? -1 : 1;
+	            if (v1 instanceof Comparable && v2 instanceof Comparable) {
+	                return ascending ? ((Comparable) v1).compareTo(v2)
+	                                 : ((Comparable) v2).compareTo(v1);
+	            }
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				return 0;
-			}
-		});
+	            return 0;
+
+	        } catch (Exception e) {
+	            System.out.println("Exception occurred for " + sortField);
+	            e.printStackTrace();
+	            return 0;
+	        }
+	    });
 	}
+
+
 
 	// Helper method to extract numeric values from vitals strings
 	private Double extractNumericFromVitals(String vitals) {
@@ -1698,31 +1690,31 @@ public class ProcedureController {
 	}
 
 	private void sortPrescriptionList() {
-		if (viewPrescriptions == null || sortField == null)
-			return;
+	    if (viewPrescriptions == null || sortField == null)
+	        return;
 
-		Collections.sort(viewPrescriptions, (p1, p2) -> {
-			try {
-				Field f = p1.getClass().getDeclaredField(sortField);
-				f.setAccessible(true);
-				Object v1 = f.get(p1);
-				Object v2 = f.get(p2);
+	    Collections.sort(viewPrescriptions, (p1, p2) -> {
+	        try {
+	            // Use the nested field getter
+	            Object v1 = getNestedFieldValue(p1, sortField);
+	            Object v2 = getNestedFieldValue(p2, sortField);
 
-				if (v1 == null || v2 == null)
-					return 0;
+	            if (v1 == null || v2 == null)
+	                return 0;
 
-				if (v1 instanceof Date && v2 instanceof Date) {
-					return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
-				} else if (v1 instanceof Comparable && v2 instanceof Comparable) {
-					return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
-				} else {
-					return 0;
-				}
-			} catch (Exception e) {
-				return 0;
-			}
-		});
+	            if (v1 instanceof Date && v2 instanceof Date) {
+	                return ascending ? ((Date) v1).compareTo((Date) v2) : ((Date) v2).compareTo((Date) v1);
+	            } else if (v1 instanceof Comparable && v2 instanceof Comparable) {
+	                return ascending ? ((Comparable) v1).compareTo(v2) : ((Comparable) v2).compareTo(v1);
+	            } else {
+	                return 0;
+	            }
+	        } catch (Exception e) {
+	            return 0;
+	        }
+	    });
 	}
+
 
 //add single_day medical procedure	
 	public String addSingleDayMedicalProcedureController(MedicalProcedure medicalProcedure)
@@ -1850,11 +1842,14 @@ public class ProcedureController {
 			isValid = false;
 		}
 		String diag = medicalProcedure.getDiagnosis().trim();
-		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9 .,\\-/():;'\\+%\\-]+$";
+		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9](?:[ \\p{L}0-9.,\\-/():;'\\+%]*[\\p{L}0-9])?$";
+
 
 		if (!diag.matches(diagPattern)) {
 			context.addMessage("diagnosis", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Diagnosis",
-					"Must be ≥2 chars, include at least one letter,allowed special characters are . , - / ( ) : ; ' + %"));
+					"Diagnosis must be at least 2 characters, start and end with a letter or number, \"\n"
+					+ "            + \"and may include letters, numbers, spaces, and . , - / ( ) : ; ' + %. \"\n"
+					+ "            + \"No leading/trailing spaces or special characters."));
 			context.validationFailed();
 			isValid = false;
 		}
@@ -2036,11 +2031,14 @@ public class ProcedureController {
 			isValid = false;
 		}
 		String diag = medicalProcedure.getDiagnosis().trim();
-		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9 .,\\-/():;'\\+%\\-]+$";
+		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9](?:[ \\p{L}0-9.,\\-/():;'\\+%]*[\\p{L}0-9])?$";
+
 
 		if (!diag.matches(diagPattern)) {
 			context.addMessage("diagnosis", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Diagnosis",
-					"Must be ≥2 chars, include at least one letter,allowed special characters are . , - / ( ) : ; ' + %"));
+					"Diagnosis must be at least 2 characters, start and end with a letter or number, \"\n"
+					+ "            + \"and may include letters, numbers, spaces, and . , - / ( ) : ; ' + %. \"\n"
+					+ "            + \"No leading/trailing spaces or special characters."));
 			context.validationFailed();
 			isValid = false;
 		}
@@ -2103,13 +2101,23 @@ public class ProcedureController {
 		if (!isValid)
 			return null;
 
-		// Check valid name format
-		if (testName == null || testName.trim().length() < 2 || !testName.matches("^[a-zA-Z0-9 ()/\\-.]+$")) {
-			context.addMessage("testName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Test name must be at least 2 characters and contain only letters, numbers, spaces, (), /, -, and .",
-					null));
-			context.validationFailed();
-			isValid = false;
+		// New strict regex for test name
+		String testNamePattern = "^(?=.{2,100}$)(?=(?:.*\\p{L}){2,})[\\p{L}0-9](?:[\\p{L}0-9 .\\-/'()+,:]*[\\p{L}0-9])?$";
+
+		if (!testName.matches(testNamePattern)) {
+		    context.addMessage(
+		        "testName",
+		        new FacesMessage(
+		            FacesMessage.SEVERITY_ERROR,
+		            "Invalid Test Name",
+		            "Test name must be 2–100 characters, start and end with a letter or number, " +
+		            "contain at least two letters, and may include spaces, hyphen (-), slash (/), plus (+), " +
+		            "parentheses (), period (.), apostrophe ('), comma (,), and colon (:). " +
+		            "No leading, trailing, or consecutive spaces."
+		        )
+		    );
+		    context.validationFailed();
+		    isValid = false;
 		}
 
 		// Normalize test name
@@ -2156,12 +2164,22 @@ public class ProcedureController {
 
 		// 3. Validate Result Summary again (redundant but preserved)
 		String result = procedureTest.getResultSummary();
-		if (result.isEmpty()) {
-			context.addMessage("resultSummary",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter Result summary", null));
-			context.validationFailed();
-			isValid = false;
-		}
+		 String resultSummaryPattern = "^(?=.{5,500}$)(?=.*\\p{L})[\\p{L}0-9 .,/\\-()':;+%]+$";
+
+		    if (!result.matches(resultSummaryPattern)) {
+		        context.addMessage(
+		            "resultSummary",
+		            new FacesMessage(
+		                FacesMessage.SEVERITY_ERROR,
+		                "Invalid Result Summary",
+		                "Summary must be 5–500 characters, contain at least one letter, " +
+		                "and may include letters, numbers, spaces, period (.), comma (,), hyphen (-), slash (/), " +
+		                "parentheses (), colon (:), semicolon (;), apostrophe ('), plus (+), and percent (%)."
+		            )
+		        );
+		        context.validationFailed();
+		        isValid = false;
+		    }
 
 		if (!isValid)
 			return null;
@@ -2172,203 +2190,220 @@ public class ProcedureController {
 
 //add medicine for new prescription
 	public String addPresribedMedicinesController(PrescribedMedicines prescribedMedicine)
-			throws ClassNotFoundException, SQLException {
+	        throws ClassNotFoundException, SQLException {
 
-		prescribedMedicines.removeIf(p -> p.getPrescribedId().equals(prescribedMedicine.getPrescribedId()));
-		currentPrescribedMedicines.removeIf(p -> p.getPrescribedId().equals(prescribedMedicine.getPrescribedId()));
-		FacesContext context = FacesContext.getCurrentInstance();
-		Map<String, Object> sessionMap = context.getExternalContext().getSessionMap();
-		boolean isValid = true;
+	    prescribedMedicines.removeIf(p -> p.getPrescribedId().equals(prescribedMedicine.getPrescribedId()));
+	    currentPrescribedMedicines.removeIf(p -> p.getPrescribedId().equals(prescribedMedicine.getPrescribedId()));
 
-		providerDao = new ProviderDaoImpl();
-		prescribedMedicine.setPrescription(prescription);
+	    FacesContext context = FacesContext.getCurrentInstance();
+	    Map<String, Object> sessionMap = context.getExternalContext().getSessionMap();
+	    boolean isValid = true;
 
-		// 1. Basic Field Validations
-		String medicineName = prescribedMedicine.getMedicineName();
-		if (medicineName == null || medicineName.trim().isEmpty()) {
-			context.addMessage("medicineName",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter medicine name", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    providerDao = new ProviderDaoImpl();
+	    prescribedMedicine.setPrescription(prescription);
 
-		if (prescribedMedicine.getDosage() == null || prescribedMedicine.getDosage().trim().isEmpty()) {
-			context.addMessage("dosage", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter dosage", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    // 1. Basic Field Validations
+	    String medicineName = prescribedMedicine.getMedicineName();
+	    if (medicineName == null || medicineName.trim().isEmpty()) {
+	        context.addMessage("medicineName",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter medicine name", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (prescribedMedicine.getStartDate() == null) {
-			context.addMessage("startDate", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Enter from which date to start taking medicine", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (prescribedMedicine.getDosage() == null || prescribedMedicine.getDosage().trim().isEmpty()) {
+	        context.addMessage("dosage", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter dosage", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (prescribedMedicine.getDuration() == null || prescribedMedicine.getDuration().trim().isEmpty()) {
-			context.addMessage("duration", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter duration", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (prescribedMedicine.getStartDate() == null) {
+	        context.addMessage("startDate", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Enter from which date to start taking medicine", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (prescribedMedicine.getType() == null) {
-			context.addMessage("type", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter Medicine type", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (prescribedMedicine.getDuration() == null || prescribedMedicine.getDuration().trim().isEmpty()) {
+	        context.addMessage("duration", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter duration", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (!isValid)
-			return null;
+	    if (prescribedMedicine.getType() == null) {
+	        context.addMessage("type", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter Medicine type", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		// 2. Format and Validate Medicine Name
-		if (!medicineName.matches("^(?=(?:.*[a-zA-Z]){2,})[a-zA-Z0-9()\\-+/'. ]{2,50}$")) {
-			context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Medicine name must be 2–50 characters, contain at least two letters, and can include digits, -, /, +, (), '.', and spaces.",
-					null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (!isValid)
+	        return null;
 
-		// 3. Calculate End Date Early
-		Date newStart = Converter.truncateTime(prescribedMedicine.getStartDate());
-		Date newEnd = null;
-		try {
-			long durationDays = Long.parseLong(prescribedMedicine.getDuration().trim());
-			if (durationDays <= 0) {
-				context.addMessage("duration",
-						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Duration must be positive.", null));
-				context.validationFailed();
-				isValid = false;
-			} else {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(newStart);
-				cal.add(Calendar.DATE, (int) durationDays - 1);
-				newEnd = Converter.truncateTime(cal.getTime());
-				prescribedMedicine.setEndDate(newEnd);
-			}
-		} catch (NumberFormatException e) {
-			context.addMessage("duration",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Duration must be a valid number.", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    // 2. Format and Validate Medicine Name
+	    medicineName = medicineName.trim().replaceAll("\\s+", " ");
+	    if (medicineName.length() < 2 || medicineName.length() > 50) {
+	        context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Medicine name must be between 2 and 50 characters.", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (!isValid)
-			return null;
+	    long letterCount = medicineName.chars().filter(Character::isLetter).count();
+	    if (letterCount < 2) {
+	        context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Medicine name must contain at least two letters.", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		// 4. Check for Duplicate Overlaps
-		loadViewMedicines(prescription);
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
+	    if (!medicineName.matches("^[\\p{L}0-9](?:[\\p{L}0-9 .\\-/'()+]*[\\p{L}0-9])?$")) {
+	        context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Medicine name must start and end with a letter or number, and may include spaces, hyphen (-), slash (/), plus (+), parentheses (), period (.), and apostrophe (').", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		for (PrescribedMedicines existingMed : viewMedicines) {
-			if (existingMed.getPrescription() != null && prescription != null
-					&& existingMed.getPrescription().getPrescriptionId().equals(prescription.getPrescriptionId())
-					&& existingMed.getMedicineName() != null
-					&& existingMed.getMedicineName().equalsIgnoreCase(medicineName)
-					&& existingMed.getType() == prescribedMedicine.getType()) {
+	    prescribedMedicine.setMedicineName(medicineName);
 
-				Date existingStart = Converter.truncateTime(existingMed.getStartDate());
-				if (existingStart == null || newStart == null || newEnd == null)
-					continue;
+	    // 3. Calculate End Date Early
+	    Date newStart = Converter.truncateTime(prescribedMedicine.getStartDate());
+	    Date newEnd = null;
+	    try {
+	        long durationDays = Long.parseLong(prescribedMedicine.getDuration().trim());
+	        if (durationDays <= 0) {
+	            context.addMessage("duration",
+	                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Duration must be positive.", null));
+	            context.validationFailed();
+	            isValid = false;
+	        } else {
+	            Calendar cal = Calendar.getInstance();
+	            cal.setTime(newStart);
+	            cal.add(Calendar.DATE, (int) durationDays - 1);
+	            newEnd = Converter.truncateTime(cal.getTime());
+	            prescribedMedicine.setEndDate(newEnd);
+	        }
+	    } catch (NumberFormatException e) {
+	        context.addMessage("duration",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Duration must be a valid number.", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(existingStart);
-				cal.add(Calendar.DATE, (int) Long.parseLong(existingMed.getDuration()) - 1);
-				Date existingEnd = Converter.truncateTime(cal.getTime());
-				if (existingEnd == null)
-					continue;
+	    if (!isValid)
+	        return null;
 
-				boolean overlaps = !newEnd.before(existingStart) && !newStart.after(existingEnd);
-				if (overlaps) {
-					context.addMessage("startDate",
-							new FacesMessage(FacesMessage.SEVERITY_ERROR,
-									"Same medicine with name and type is already prescribed from "
-											+ formatDate(existingStart) + " till " + formatDate(existingEnd),
-									null));
-					context.validationFailed();
-					isValid = false;
-					break;
-				}
-			}
-		}
+	    // 4. Check for Duplicate Overlaps
+	    loadViewMedicines(prescription);
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
 
-		// 5. Dosage Format Validation
-		String dosage = prescribedMedicine.getDosage();
-		MedicineType type = prescribedMedicine.getType();
-		String pattern = "";
-		String format = "";
+	    for (PrescribedMedicines existingMed : viewMedicines) {
+	        if (existingMed.getPrescription() != null && prescription != null
+	                && existingMed.getPrescription().getPrescriptionId().equals(prescription.getPrescriptionId())
+	                && existingMed.getMedicineName() != null
+	                && existingMed.getMedicineName().equalsIgnoreCase(medicineName)
+	                && existingMed.getType() == prescribedMedicine.getType()) {
 
-		switch (type) {
-		case TABLET:
-			pattern = "^\\d+\\s*tablet(s)?$";
-			format = "tablets";
-			break;
-		case SYRUP:
-			pattern = "^\\d+(\\.\\d+)?\\s*ml$";
-			format = "ml";
-			break;
-		case INJECTION:
-			pattern = "^(\\d+(\\.\\d+)?\\s*ml|\\d+\\s*dose(s)?)$";
-			format = "ml/dose";
-			break;
-		case DROP:
-			pattern = "^\\d+\\s*drop(s)?$";
-			format = "drops";
-			break;
-		default:
-			context.addMessage("type", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid medicine type.", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	            Date existingStart = Converter.truncateTime(existingMed.getStartDate());
+	            if (existingStart == null || newStart == null || newEnd == null)
+	                continue;
 
-		if (!dosage.trim().toLowerCase().matches(pattern)) {
-			context.addMessage("dosage", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Dosage format is invalid for " + type + " type: " + format, null));
-			context.validationFailed();
-			isValid = false;
-		}
+	            Calendar cal = Calendar.getInstance();
+	            cal.setTime(existingStart);
+	            cal.add(Calendar.DATE, (int) Long.parseLong(existingMed.getDuration()) - 1);
+	            Date existingEnd = Converter.truncateTime(cal.getTime());
+	            if (existingEnd == null)
+	                continue;
 
-		// 6. Prescription Date Boundaries
-		Date prescriptionStart = prescription.getStartDate();
-		Date prescriptionEnd = prescription.getEndDate();
+	            boolean overlaps = !newEnd.before(existingStart) && !newStart.after(existingEnd);
+	            if (overlaps) {
+	                context.addMessage("startDate",
+	                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                                "Same medicine with name and type is already prescribed from "
+	                                        + sdf.format(existingStart) + " till " + sdf.format(existingEnd),
+	                                null));
+	                context.validationFailed();
+	                isValid = false;
+	                break;
+	            }
+	        }
+	    }
 
-		if (newStart.before(prescriptionStart)) {
-			context.addMessage("startDate",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Start date (" + sdf.format(newStart)
-							+ ") cannot be before prescription start date (" + sdf.format(prescriptionStart) + ").",
-							null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    // 5. Dosage Format Validation
+	    String dosage = prescribedMedicine.getDosage();
+	    MedicineType type = prescribedMedicine.getType();
+	    String pattern = "";
+	    String format = "";
 
-		if (newStart.after(prescriptionEnd)) {
-			context.addMessage("startDate",
-					new FacesMessage(
-							FacesMessage.SEVERITY_ERROR, "Start date (" + sdf.format(newStart)
-									+ ") cannot be after prescription end date (" + sdf.format(prescriptionEnd) + ").",
-							null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    switch (type) {
+	        case TABLET:
+	            pattern = "^\\d+\\s*tablet(s)?$";
+	            format = "tablets";
+	            break;
+	        case SYRUP:
+	            pattern = "^\\d+(\\.\\d+)?\\s*ml$";
+	            format = "ml";
+	            break;
+	        case INJECTION:
+	            pattern = "^(\\d+(\\.\\d+)?\\s*ml|\\d+\\s*dose(s)?)$";
+	            format = "ml/dose";
+	            break;
+	        case DROP:
+	            pattern = "^\\d+\\s*drop(s)?$";
+	            format = "drops";
+	            break;
+	        default:
+	            context.addMessage("type", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid medicine type.", null));
+	            context.validationFailed();
+	            isValid = false;
+	    }
 
-		if (newEnd != null && newEnd.after(prescriptionEnd)) {
-			long maxAllowedDuration = (prescriptionEnd.getTime() - newStart.getTime()) / (1000 * 60 * 60 * 24) + 1;
-			context.addMessage("duration",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR,
-							"Duration exceeds prescription period. Max allowed from " + sdf.format(newStart) + " to "
-									+ sdf.format(prescriptionEnd) + " is " + maxAllowedDuration + " days.",
-							null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (!dosage.trim().toLowerCase().matches(pattern)) {
+	        context.addMessage("dosage", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Dosage format is invalid for " + type + " type: " + format, null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (!isValid)
-			return null;
+	    // 6. Prescription Date Boundaries
+	    Date prescriptionStart = prescription.getStartDate();
+	    Date prescriptionEnd = prescription.getEndDate();
 
-		// 7. Add Medicine
-		currentPrescribedMedicines.add(prescribedMedicine);
-		prescribedMedicines.add(prescribedMedicine);
-		return "PrescriptionDashboard?faces-redirect=true";
+	    if (newStart.before(prescriptionStart)) {
+	        context.addMessage("startDate",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Start date (" + sdf.format(newStart)
+	                        + ") cannot be before prescription start date (" + sdf.format(prescriptionStart) + ").",
+	                        null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
+
+	    if (newStart.after(prescriptionEnd)) {
+	        context.addMessage("startDate",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Start date (" + sdf.format(newStart)
+	                        + ") cannot be after prescription end date (" + sdf.format(prescriptionEnd) + ").",
+	                        null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
+
+	    if (newEnd != null && newEnd.after(prescriptionEnd)) {
+	        long maxAllowedDuration = (prescriptionEnd.getTime() - newStart.getTime()) / (1000 * 60 * 60 * 24) + 1;
+	        context.addMessage("duration",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                        "Duration exceeds prescription period. Max allowed from " + sdf.format(newStart) + " to "
+	                                + sdf.format(prescriptionEnd) + " is " + maxAllowedDuration + " days.",
+	                        null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
+
+	    if (!isValid)
+	        return null;
+
+	    // 7. Add Medicine
+	    currentPrescribedMedicines.add(prescribedMedicine);
+	    prescribedMedicines.add(prescribedMedicine);
+	    return "PrescriptionDashboard?faces-redirect=true";
 	}
 
 //add prescription
@@ -2718,27 +2753,34 @@ public class ProcedureController {
 		// 5. Vitals formatting rules
 		String vitals = procedureLog.getVitals();
 		if (vitals != null && !vitals.trim().isEmpty()) {
-			vitals = vitals.trim().replaceAll("\\s+", " ");
-			if (vitals.length() > 300) {
-				context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Vitals should not exceed 300 characters.", null));
-				context.validationFailed();
-				isValid = false;
-			}
-			if (!vitals.matches("[a-zA-Z0-9:/.,\\s]+")) {
-				context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Vitals can only contain letters, numbers, spaces, colon (:), slash (/), comma (,), and dot (.)",
-						null));
-				context.validationFailed();
-				isValid = false;
-			}
-			if (vitals.matches("\\d+")) {
-				context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Vitals cannot be only numeric. Please include proper labels like 'BP: 120/80'.", null));
-				context.validationFailed();
-				isValid = false;
-			}
-			procedureLog.setVitals(vitals);
+		    vitals = vitals.trim().replaceAll("\\s+", " ");
+
+		    // Length constraint
+		    if (vitals.length() < 5 || vitals.length() > 300) {
+		        context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+		                "Vitals should be between 5 and 300 characters.", null));
+		        context.validationFailed();
+		        isValid = false;
+		    }
+
+		    // Allowed characters (letters, digits, space, common medical symbols)
+		    String vitalsPattern = "^[A-Za-z0-9 .,:/\\-()%+±<>]+$";
+		    if (!vitals.matches(vitalsPattern)) {
+		        context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+		                "Vitals can only contain letters, numbers, spaces, and the symbols: . , : / - ( ) % + ± < >", null));
+		        context.validationFailed();
+		        isValid = false;
+		    }
+
+		    // Must have at least one letter (so it's not just numeric or numbers + symbols)
+		    if (!vitals.matches(".*[A-Za-z].*")) {
+		        context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+		                "Vitals must include a label (e.g., 'BP: 120/80').", null));
+		        context.validationFailed();
+		        isValid = false;
+		    }
+
+		    procedureLog.setVitals(vitals);
 		}
 
 		// 6. Same-day procedure constraint
@@ -3973,7 +4015,23 @@ public class ProcedureController {
 			context.validationFailed();
 			isValid = false;
 		}
+		String result = test.getResultSummary();
+		 String resultSummaryPattern = "^(?=.{5,500}$)(?=.*\\p{L})[\\p{L}0-9 .,/\\-()':;+%]+$";
 
+		    if (!result.matches(resultSummaryPattern)) {
+		        context.addMessage(
+		            "resultSummary",
+		            new FacesMessage(
+		                FacesMessage.SEVERITY_ERROR,
+		                "Invalid Result Summary",
+		                "Summary must be 5–500 characters, contain at least one letter, " +
+		                "and may include letters, numbers, spaces, period (.), comma (,), hyphen (-), slash (/), " +
+		                "parentheses (), colon (:), semicolon (;), apostrophe ('), plus (+), and percent (%)."
+		            )
+		        );
+		        context.validationFailed();
+		        isValid = false;
+		    }
 		// Validation: Test Date
 		if (test.getTestDate() == null) {
 			context.addMessage("testDate", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter Test Date", null));
@@ -4052,7 +4110,50 @@ public class ProcedureController {
 
 	// update existing log
 	public String updateLog(ProcedureDailyLog log) throws ClassNotFoundException, SQLException {
+		Boolean isValid = true;
+		FacesContext context = FacesContext.getCurrentInstance();
+		procedureLog.setMedicalProcedure(procedure);
+		if (procedureLog.getVitals().isEmpty()) {
+			context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter vitals", null));
+			context.validationFailed();
+			isValid = false;
+		}
+		if (!isValid)
+			return null;
+		// 5. Vitals formatting rules
+		String vitals = log.getVitals();
+		if (vitals != null && !vitals.trim().isEmpty()) {
+		    vitals = vitals.trim().replaceAll("\\s+", " ");
 
+		    // Length constraint
+		    if (vitals.length() < 5 || vitals.length() > 300) {
+		        context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+		                "Vitals should be between 5 and 300 characters.", null));
+		        context.validationFailed();
+		        isValid = false;
+		    }
+
+		    // Allowed characters (letters, digits, space, common medical symbols)
+		    String vitalsPattern = "^[A-Za-z0-9 .,:/\\-()%+±<>]+$";
+		    if (!vitals.matches(vitalsPattern)) {
+		        context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+		                "Vitals can only contain letters, numbers, spaces, and the symbols: . , : / - ( ) % + ± < >", null));
+		        context.validationFailed();
+		        isValid = false;
+		    }
+
+		    // Must have at least one letter (so it's not just numeric or numbers + symbols)
+		    if (!vitals.matches(".*[A-Za-z].*")) {
+		        context.addMessage("vitals", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+		                "Vitals must include a label (e.g., 'BP: 120/80').", null));
+		        context.validationFailed();
+		        isValid = false;
+		    }
+
+		    procedureLog.setVitals(vitals);
+		}
+		if (!isValid)
+			return null;
 		if (procedureLogs != null && !procedureLogs.isEmpty()) {
 			for (int i = 0; i < procedureLogs.size(); i++) {
 				ProcedureDailyLog pLog = procedureLogs.get(i);
@@ -4234,11 +4335,14 @@ public class ProcedureController {
 		}
 		// Validate Diagnosis
 		String diag = p.getDiagnosis().trim();
-		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9 .,\\-/():;'\\+%\\-]+$";
+		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9](?:[ \\p{L}0-9.,\\-/():;'\\+%]*[\\p{L}0-9])?$";
+
 
 		if (!diag.matches(diagPattern)) {
 			context.addMessage("diagnosis", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Diagnosis",
-					"Must be ≥2 chars, include at least one letter,allowed special characters are . , - / ( ) : ; ' + %"));
+					"Diagnosis must be at least 2 characters, start and end with a letter or number, \"\n"
+					+ "            + \"and may include letters, numbers, spaces, and . , - / ( ) : ; ' + %. \"\n"
+					+ "            + \"No leading/trailing spaces or special characters."));
 			context.validationFailed();
 			isValid = false;
 		}
@@ -4263,11 +4367,14 @@ public class ProcedureController {
 			return null;
 // Validate Diagnosis
 		String diag = p.getDiagnosis().trim();
-		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9 .,\\-/():;'\\+%\\-]+$";
+		String diagPattern = "^(?=.{2,})(?=.*\\p{L})[\\p{L}0-9](?:[ \\p{L}0-9.,\\-/():;'\\+%]*[\\p{L}0-9])?$";
+
 
 		if (!diag.matches(diagPattern)) {
 			context.addMessage("diagnosis", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Diagnosis",
-					"Must be ≥2 chars, include at least one letter,allowed special characters are . , - / ( ) : ; ' + %"));
+					"Diagnosis must be at least 2 characters, start and end with a letter or number, \"\n"
+					+ "            + \"and may include letters, numbers, spaces, and . , - / ( ) : ; ' + %. \"\n"
+					+ "            + \"No leading/trailing spaces or special characters."));
 			context.validationFailed();
 			isValid = false;
 		}
@@ -4649,190 +4756,204 @@ public class ProcedureController {
 
 //add medicineto existing prescription
 	public String addExistingPrescMedicine(PrescribedMedicines pm) {
-		prescribedMedicines.removeIf(p -> p.getPrescribedId().equals(pm.getPrescribedId()));
+	    prescribedMedicines.removeIf(p -> p.getPrescribedId().equals(pm.getPrescribedId()));
 
-		FacesContext context = FacesContext.getCurrentInstance();
-		Map<String, Object> sessionMap = context.getExternalContext().getSessionMap();
-		boolean isValid = true;
+	    FacesContext context = FacesContext.getCurrentInstance();
+	    Map<String, Object> sessionMap = context.getExternalContext().getSessionMap();
+	    boolean isValid = true;
 
-		providerDao = new ProviderDaoImpl();
-		pm.setPrescription(prescription);
+	    providerDao = new ProviderDaoImpl();
+	    pm.setPrescription(prescription);
 
-		// 1. Basic Field Validations
-		String medicineName = pm.getMedicineName();
-		if (medicineName == null || medicineName.trim().isEmpty()) {
-			context.addMessage("medicineName",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter medicine name", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    // 1. Basic Field Validations
+	    String medicineName = pm.getMedicineName();
+	    if (medicineName == null || medicineName.trim().isEmpty()) {
+	        context.addMessage("medicineName",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter medicine name", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (pm.getDosage() == null || pm.getDosage().trim().isEmpty()) {
-			context.addMessage("dosage", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter dosage", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (pm.getDosage() == null || pm.getDosage().trim().isEmpty()) {
+	        context.addMessage("dosage", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter dosage", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (pm.getStartDate() == null) {
-			context.addMessage("startDate", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Enter from which date to start taking medicine", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (pm.getStartDate() == null) {
+	        context.addMessage("startDate", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Enter from which date to start taking medicine", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (pm.getDuration() == null || pm.getDuration().trim().isEmpty()) {
-			context.addMessage("duration", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter duration", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (pm.getDuration() == null || pm.getDuration().trim().isEmpty()) {
+	        context.addMessage("duration", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter duration", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (pm.getType() == null) {
-			context.addMessage("type", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter Medicine type", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    if (pm.getType() == null) {
+	        context.addMessage("type", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter Medicine type", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (!isValid)
-			return null;
+	    if (!isValid)
+	        return null;
 
-		// 2. Format and Validate Medicine Name
-		if (!medicineName.matches("^(?=(?:.*[a-zA-Z]){2,})[a-zA-Z0-9()\\-+/'. ]{2,50}$")) {
-			context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Medicine name must be 2–50 characters, contain at least two letters, and can include digits, -, /, +, (), '.', and spaces.",
-					null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    // 2. Format and Validate Medicine Name
+	    medicineName = medicineName.trim().replaceAll("\\s+", " ");
+	    if (medicineName.length() < 2 || medicineName.length() > 50) {
+	        context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Medicine name must be between 2 and 50 characters.", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		medicineName = medicineName.trim().replaceAll("\\s+", " ");
-		pm.setMedicineName(medicineName);
+	    long letterCount = medicineName.chars().filter(Character::isLetter).count();
+	    if (letterCount < 2) {
+	        context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Medicine name must contain at least two letters.", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		// 3. Dosage Format Validation
-		String dosage = pm.getDosage();
-		MedicineType type = pm.getType();
-		String pattern = "";
-		String format = "";
+	    if (!medicineName.matches("^[\\p{L}0-9](?:[\\p{L}0-9 .\\-/'()+]*[\\p{L}0-9])?$")) {
+	        context.addMessage("medicineName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Medicine name must start and end with a letter or number, and may include spaces, hyphen (-), slash (/), plus (+), parentheses (), period (.), and apostrophe (').", null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		switch (type) {
-		case TABLET:
-			pattern = "^\\d+\\s*tablet(s)?$";
-			format = "tablets";
-			break;
-		case SYRUP:
-			pattern = "^\\d+(\\.\\d+)?\\s*ml$";
-			format = "ml";
-			break;
-		case INJECTION:
-			pattern = "^(\\d+(\\.\\d+)?\\s*ml|\\d+\\s*dose(s)?)$";
-			format = "ml/dose";
-			break;
-		case DROP:
-			pattern = "^\\d+\\s*drop(s)?$";
-			format = "drops";
-			break;
-		default:
-			context.addMessage("type", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid medicine type.", null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    pm.setMedicineName(medicineName);
 
-		if (!dosage.trim().toLowerCase().matches(pattern)) {
-			context.addMessage("dosage", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Dosage format is invalid for " + type + " type: " + format, null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    // 3. Dosage Format Validation
+	    String dosage = pm.getDosage();
+	    MedicineType type = pm.getType();
+	    String pattern = "";
+	    String format = "";
 
-		// 4. Calculate End Date and Validate Duration
-		Date prescriptionStart = prescription.getStartDate();
-		Date prescriptionEnd = prescription.getEndDate();
-		Date medStart = pm.getStartDate();
-		Date medEnd = null;
-		int durationDays = 0;
+	    switch (type) {
+	        case TABLET:
+	            pattern = "^\\d+\\s*tablet(s)?$";
+	            format = "tablets";
+	            break;
+	        case SYRUP:
+	            pattern = "^\\d+(\\.\\d+)?\\s*ml$";
+	            format = "ml";
+	            break;
+	        case INJECTION:
+	            pattern = "^(\\d+(\\.\\d+)?\\s*ml|\\d+\\s*dose(s)?)$";
+	            format = "ml/dose";
+	            break;
+	        case DROP:
+	            pattern = "^\\d+\\s*drop(s)?$";
+	            format = "drops";
+	            break;
+	        default:
+	            context.addMessage("type", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid medicine type.", null));
+	            context.validationFailed();
+	            isValid = false;
+	    }
 
-		try {
-			durationDays = Integer.parseInt(pm.getDuration().trim());
-			if (durationDays <= 0)
-				throw new NumberFormatException();
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(medStart);
-			cal.add(Calendar.DAY_OF_MONTH, durationDays - 1);
-			medEnd = cal.getTime();
-			pm.setEndDate(medEnd);
-		} catch (NumberFormatException e) {
-			context.addMessage("duration",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Duration must be a valid positive integer.", null));
-			context.validationFailed();
-			isValid = false;
-			return null;
-		}
+	    if (!dosage.trim().toLowerCase().matches(pattern)) {
+	        context.addMessage("dosage", new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                "Dosage format is invalid for " + type + " type: " + format, null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		if (medStart.before(prescriptionStart)) {
-			context.addMessage("startDate",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Start date (" + formatDate(medStart)
-							+ ") cannot be before prescription start date (" + formatDate(prescriptionStart) + ").",
-							null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    // 4. Calculate End Date and Validate Duration
+	    Date prescriptionStart = prescription.getStartDate();
+	    Date prescriptionEnd = prescription.getEndDate();
+	    Date medStart = pm.getStartDate();
+	    Date medEnd = null;
+	    int durationDays = 0;
 
-		if (medEnd != null && medEnd.after(prescriptionEnd)) {
-			long maxAllowedDuration = (prescriptionEnd.getTime() - medStart.getTime()) / (1000 * 60 * 60 * 24) + 1;
-			SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-			context.addMessage("duration",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR,
-							"The given duration falls outside the prescription period. Maximum allowed duration from "
-									+ sdf.format(medStart) + " to " + sdf.format(prescriptionEnd) + " is "
-									+ maxAllowedDuration + " days.",
-							null));
-			context.validationFailed();
-			isValid = false;
-		}
+	    try {
+	        durationDays = Integer.parseInt(pm.getDuration().trim());
+	        if (durationDays <= 0)
+	            throw new NumberFormatException();
+	        Calendar cal = Calendar.getInstance();
+	        cal.setTime(medStart);
+	        cal.add(Calendar.DAY_OF_MONTH, durationDays - 1);
+	        medEnd = cal.getTime();
+	        pm.setEndDate(medEnd);
+	    } catch (NumberFormatException e) {
+	        context.addMessage("duration",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Duration must be a valid positive integer.", null));
+	        context.validationFailed();
+	        isValid = false;
+	        return null;
+	    }
 
-		// 5. Duplicate Check
-		loadViewMedicines(prescription);
-		Date newStart = Converter.truncateTime(pm.getStartDate());
-		Date newEnd = Converter.truncateTime(pm.getEndDate());
+	    if (medStart.before(prescriptionStart)) {
+	        context.addMessage("startDate",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Start date (" + formatDate(medStart)
+	                        + ") cannot be before prescription start date (" + formatDate(prescriptionStart) + ").",
+	                        null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-		for (PrescribedMedicines existingMed : viewMedicines) {
-			if (existingMed.getPrescription() != null && prescription != null
-					&& existingMed.getPrescription().getPrescriptionId().equals(prescription.getPrescriptionId())
-					&& existingMed.getMedicineName() != null
-					&& existingMed.getMedicineName().equalsIgnoreCase(medicineName)
-					&& existingMed.getType() == pm.getType()) {
+	    if (medEnd != null && medEnd.after(prescriptionEnd)) {
+	        long maxAllowedDuration = (prescriptionEnd.getTime() - medStart.getTime()) / (1000 * 60 * 60 * 24) + 1;
+	        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+	        context.addMessage("duration",
+	                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                        "The given duration falls outside the prescription period. Maximum allowed duration from "
+	                                + sdf.format(medStart) + " to " + sdf.format(prescriptionEnd) + " is "
+	                                + maxAllowedDuration + " days.",
+	                        null));
+	        context.validationFailed();
+	        isValid = false;
+	    }
 
-				Date existingStart = Converter.truncateTime(existingMed.getStartDate());
-				if (existingStart == null || newStart == null || newEnd == null)
-					continue;
+	    // 5. Duplicate Check
+	    loadViewMedicines(prescription);
+	    Date newStart = Converter.truncateTime(pm.getStartDate());
+	    Date newEnd = Converter.truncateTime(pm.getEndDate());
 
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(existingStart);
-				cal.add(Calendar.DATE, (int) Long.parseLong(existingMed.getDuration()) - 1);
-				Date existingEnd = Converter.truncateTime(cal.getTime());
-				if (existingEnd == null)
-					continue;
+	    for (PrescribedMedicines existingMed : viewMedicines) {
+	        if (existingMed.getPrescription() != null && prescription != null
+	                && existingMed.getPrescription().getPrescriptionId().equals(prescription.getPrescriptionId())
+	                && existingMed.getMedicineName() != null
+	                && existingMed.getMedicineName().equalsIgnoreCase(medicineName)
+	                && existingMed.getType() == pm.getType()) {
 
-				boolean overlaps = !newEnd.before(existingStart) && !newStart.after(existingEnd);
-				if (overlaps) {
-					context.addMessage("startDate",
-							new FacesMessage(FacesMessage.SEVERITY_ERROR,
-									"Same medicine with name and type is already prescribed from "
-											+ formatDate(existingStart) + " till " + formatDate(existingEnd),
-									null));
-					context.validationFailed();
-					isValid = false;
-					break;
-				}
-			}
-		}
+	            Date existingStart = Converter.truncateTime(existingMed.getStartDate());
+	            if (existingStart == null || newStart == null || newEnd == null)
+	                continue;
 
-		if (!isValid)
-			return null;
+	            Calendar cal = Calendar.getInstance();
+	            cal.setTime(existingStart);
+	            cal.add(Calendar.DATE, (int) Long.parseLong(existingMed.getDuration()) - 1);
+	            Date existingEnd = Converter.truncateTime(cal.getTime());
+	            if (existingEnd == null)
+	                continue;
 
-		// 6. Add and Refresh
-		prescribedMedicines.add(pm);
-		loadViewMedicines(prescription);
-		return "ViewMedicines?faces-redirect=true";
+	            boolean overlaps = !newEnd.before(existingStart) && !newStart.after(existingEnd);
+	            if (overlaps) {
+	                context.addMessage("startDate",
+	                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+	                                "Same medicine with name and type is already prescribed from "
+	                                        + formatDate(existingStart) + " till " + formatDate(existingEnd),
+	                                null));
+	                context.validationFailed();
+	                isValid = false;
+	                break;
+	            }
+	        }
+	    }
+
+	    if (!isValid)
+	        return null;
+
+	    // 6. Add and Refresh
+	    prescribedMedicines.add(pm);
+	    loadViewMedicines(prescription);
+	    return "ViewMedicines?faces-redirect=true";
 	}
 
 //add test to existing prescription
@@ -4864,12 +4985,23 @@ public class ProcedureController {
 		}
 		if (!isValid)
 			return null;
-		if (testName == null || testName.trim().length() < 2 || !testName.matches("^[a-zA-Z0-9 ()/\\-.]+$")) {
-			context.addMessage("testName", new FacesMessage(FacesMessage.SEVERITY_ERROR,
-					"Test name must be at least 2 characters and contain only letters, numbers, spaces, (), /, -, and .",
-					null));
-			context.validationFailed();
-			isValid = false;
+		// New strict regex for test name
+		String testNamePattern = "^(?=.{2,100}$)(?=(?:.*\\p{L}){2,})[\\p{L}0-9](?:[\\p{L}0-9 .\\-/'()+,:]*[\\p{L}0-9])?$";
+
+		if (!testName.matches(testNamePattern)) {
+		    context.addMessage(
+		        "testName",
+		        new FacesMessage(
+		            FacesMessage.SEVERITY_ERROR,
+		            "Invalid Test Name",
+		            "Test name must be 2–100 characters, start and end with a letter or number, " +
+		            "contain at least two letters, and may include spaces, hyphen (-), slash (/), plus (+), " +
+		            "parentheses (), period (.), apostrophe ('), comma (,), and colon (:). " +
+		            "No leading, trailing, or consecutive spaces."
+		        )
+		    );
+		    context.validationFailed();
+		    isValid = false;
 		}
 		// test duplicacy check
 		testName = testName.trim().replaceAll("\\s+", " ");
@@ -4913,12 +5045,22 @@ public class ProcedureController {
 
 		// 3. Validate Result Summary
 		String result = procedureTest.getResultSummary();
-		if (result.isEmpty()) {
-			context.addMessage("resultSummary",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Enter Result summary", null));
-			context.validationFailed();
-			isValid = false;
-		}
+		 String resultSummaryPattern = "^(?=.{5,500}$)(?=.*\\p{L})[\\p{L}0-9 .,/\\-()':;+%]+$";
+
+		    if (!result.matches(resultSummaryPattern)) {
+		        context.addMessage(
+		            "resultSummary",
+		            new FacesMessage(
+		                FacesMessage.SEVERITY_ERROR,
+		                "Invalid Result Summary",
+		                "Summary must be 5–500 characters, contain at least one letter, " +
+		                "and may include letters, numbers, spaces, period (.), comma (,), hyphen (-), slash (/), " +
+		                "parentheses (), colon (:), semicolon (;), apostrophe ('), plus (+), and percent (%)."
+		            )
+		        );
+		        context.validationFailed();
+		        isValid = false;
+		    }
 		if (!isValid)
 			return null;
 		procedureTests.add(procedureTest);
@@ -5493,7 +5635,7 @@ public class ProcedureController {
 			showPrevious = true;
 			showAll = false;
 			showCurrent = false;
-			previousPrescriptions = providerEjb.fetchPrescriptions(procedureId);
+			previousPrescriptions = providerEjb.fetchPrescriptions(this.procedure.getProcedureId());
 		}
 		return "ViewPrescriptions?faces-redirect=true";
 	}
@@ -5535,7 +5677,7 @@ public class ProcedureController {
 			showPrevious = true;
 			showAll = false;
 			showCurrent = false;
-			previousLogs = providerEjb.fetchLogs(procedureId);
+			previousLogs = providerEjb.fetchLogs(this.procedure.getProcedureId());
 		}
 		return "ViewLogs?faces-redirect=true";
 	}
